@@ -17,6 +17,7 @@ GLuint CreateGpuProgram(GLuint vertex_shader_id, GLuint fragment_shader_id);
 
 void TextRendering_LoadShader(const GLchar* const shader_string, GLuint shader_id);
 void TextRendering_Init();
+void TextRendering_PrintStringC(GLFWwindow* window, const std::string &str, float x, float y, glm::vec3 color, float scale);
 void TextRendering_PrintString(GLFWwindow* window, const std::string &str, float x, float y, float scale);
 float TextRendering_LineHeight(GLFWwindow* window);
 float TextRendering_CharWidth(GLFWwindow* window);
