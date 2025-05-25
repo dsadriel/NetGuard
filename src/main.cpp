@@ -74,7 +74,7 @@ int main()
     while (!glfwWindowShouldClose(window))
     {
         
-        glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+        glClearColor(39/255.0f, 37/255.0f, 38/255.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         TextRendering_ShowFramesPerSecond(window);
