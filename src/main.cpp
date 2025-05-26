@@ -40,11 +40,18 @@ Camera g_Camera = Camera(glm::vec4(2.0f, 2.0f, 2.0f, 1.0f), // Posicao incial da
 map<const char *, SceneObject> g_VirtualScene;
 float g_ScreenRatio = 1024.0f / 768.0f;
 bool g_UsePerspectiveProjection = true;
-GLuint g_GpuProgramID = 0;
 bool g_LeftMouseButtonPressed = false;
 float g_MovementSpeed = 0.05f;
 float g_MouseSensitivity = 0.005f;
 double g_LastCursorPosX, g_LastCursorPosY;
+
+
+// Variáveis que definem um programa de GPU (shaders). Veja função LoadShadersFromFiles().
+GLuint g_GpuProgramID = 0;
+GLint g_model_uniform;
+GLint g_view_uniform;
+GLint g_projection_uniform;
+GLint g_object_id_uniform;
 
 // ==================================================
 // MARK: Programa Principal
@@ -89,7 +96,7 @@ int main() {
 	const GLubyte *glslversion = glGetString(GL_SHADING_LANGUAGE_VERSION);
 	printf("GPU: %s, %s, OpenGL %s, GLSL %s\n", vendor, renderer, glversion, glslversion);
 
-	LoadShadersFromFiles(&g_GpuProgramID);
+	LoadShadersFromFiles();
 
 	GLuint vertex_array_object_id = BuildTriangles();
 

@@ -8,8 +8,14 @@
 #include <fstream>
 #include <sstream>
 
+// Variáveis que definem um programa de GPU (shaders) e ESTÃO NA MAIN. Veja função LoadShadersFromFiles().
+extern GLuint g_GpuProgramID;
+extern GLint g_model_uniform;
+extern GLint g_view_uniform;
+extern GLint g_projection_uniform;
+extern GLint g_object_id_uniform;
 
-void LoadShadersFromFiles(GLuint* gpu_program_id);
+void LoadShadersFromFiles();
 GLuint LoadShader_Vertex(const char *filename);
 GLuint LoadShader_Fragment(const char *filename);
 void LoadShader(const char *filename, GLuint shader_id);

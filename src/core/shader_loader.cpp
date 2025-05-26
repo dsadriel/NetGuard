@@ -1,13 +1,24 @@
 #include "core/shader_loader.h"
 
-void LoadShadersFromFiles(GLuint *gpu_program_id) {
+void LoadShadersFromFiles()
+{
     GLuint vertex_shader_id = LoadShader_Vertex("../../src/core/shader_vertex.glsl");
     GLuint fragment_shader_id = LoadShader_Fragment("../../src/core/shader_fragment.glsl");
 
-    if (*gpu_program_id != 0)
-        glDeleteProgram(*gpu_program_id);
+    // Deletamos o programa de GPU anterior, caso ele exista.
+    if ( g_GpuProgramID != 0 )
+        glDeleteProgram(g_GpuProgramID);
 
-    *gpu_program_id = CreateGpuProgram(vertex_shader_id, fragment_shader_id);
+    // Criamos um programa de GPU utilizando os shaders carregados acima.
+    g_GpuProgramID = CreateGpuProgram(vertex_shader_id, fragment_shader_id);
+
+    // Buscamos o endereço das variáveis definidas dentro do Vertex Shader.
+    // Utilizaremos estas variáveis para enviar dados para a placa de vídeo
+    // (GPU)! Veja arquivo "shader_vertex.glsl" e "shader_fragment.glsl".
+    g_model_uniform      = glGetUniformLocation(g_GpuProgramID, "model"); // Variável da matriz "model"
+    g_view_uniform       = glGetUniformLocation(g_GpuProgramID, "view"); // Variável da matriz "view" em shader_vertex.glsl
+    g_projection_uniform = glGetUniformLocation(g_GpuProgramID, "projection"); // Variável da matriz "projection" em shader_vertex.glsl
+    g_object_id_uniform  = glGetUniformLocation(g_GpuProgramID, "object_id"); // Variável "object_id" em shader_fragment.glsl
 }
 
 GLuint LoadShader_Vertex(const char *filename) {
