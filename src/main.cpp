@@ -12,6 +12,7 @@
 #include "utils/text_rendering.h"
 #include "matrices.h"
 #include "game/Camera.h"
+using namespace std;
 
 // clang-format on
 
@@ -45,7 +46,7 @@ Camera g_Camera = Camera(glm::vec4(2.0f, 2.0f, 2.0f, 1.0f), // Posicao incial da
                          -2.4f,                             // angulo de yaw (em radianos)
                          -0.5f                              // angulo de pitch (em radianos)
 );
-std::map<const char *, SceneObject> g_VirtualScene;
+map<const char *, SceneObject> g_VirtualScene;
 float g_ScreenRatio = 1024.0f / 768.0f;
 bool g_UsePerspectiveProjection = true;
 GLuint g_GpuProgramID = 0;
@@ -62,7 +63,7 @@ int main() {
 	int success = glfwInit();
 	if (!success) {
 		fprintf(stderr, "ERROR: glfwInit() failed.\n");
-		std::exit(EXIT_FAILURE);
+		exit(EXIT_FAILURE);
 	}
 
 	// glfwSetErrorCallback(ErrorCallback);
@@ -77,7 +78,7 @@ int main() {
 	if (!window) {
 		glfwTerminate();
 		fprintf(stderr, "ERROR: glfwCreateWindow() failed.\n");
-		std::exit(EXIT_FAILURE);
+		exit(EXIT_FAILURE);
 	}
 
 	glfwSetKeyCallback(window, KeyCallback);
