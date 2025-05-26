@@ -6,14 +6,16 @@
 #include <GLFW/glfw3.h> 
 
 #include "utils/text_rendering.h"
+#include "matrices.h"
+#include "obj_loader_utils.h"
+
+using namespace std;
 
 void TextRendering_ShowFramesPerSecond(GLFWwindow* window);
 GLuint CreateGpuProgram(GLuint vertex_shader_id, GLuint fragment_shader_id);
 
 int main()
 {
-    
-    
     int success = glfwInit();
     if (!success)
     {
