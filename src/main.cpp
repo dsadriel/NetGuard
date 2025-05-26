@@ -12,6 +12,8 @@
 #include "utils/text_rendering.h"
 #include "matrices.h"
 #include "game/Camera.h"
+#include "scene.h"
+
 using namespace std;
 
 // clang-format on
@@ -25,17 +27,6 @@ GLuint BuildTriangles();
 void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mod);
 void CursorPosCallback(GLFWwindow *window, double xpos, double ypos);
 void MouseButtonCallback(GLFWwindow *window, int button, int action, int mods);
-
-// ==================================================
-// MARK: Definições de estruturas
-// ==================================================
-
-struct SceneObject {
-	const char *name;      // Nome do objeto
-	void *first_index;     // Índice do primeiro vértice dentro do vetor indices[] definido em BuildTriangles()
-	int num_indices;       // Número de índices do objeto dentro do vetor indices[] definido em BuildTriangles()
-	GLenum rendering_mode; // Modo de rasterização (GL_TRIANGLES, GL_TRIANGLE_STRIP, etc.)
-};
 
 // ==================================================
 // MARK: Variáveis globais
@@ -386,19 +377,19 @@ GLuint BuildTriangles() {
 	                    0, 4, 4, 7, 7, 6, 6, 2, 6, 5, 5, 4, 5, 1, 7, 3, 8, 9, 10, 11, 12, 13};
 	SceneObject cube_faces;
 	cube_faces.name = "Cubo (faces coloridas)";
-	cube_faces.first_index = (void *)0;
+	cube_faces.first_index = 0;
 	cube_faces.num_indices = 36;
 	cube_faces.rendering_mode = GL_TRIANGLES;
 	g_VirtualScene["cube_faces"] = cube_faces;
 	SceneObject cube_edges;
 	cube_edges.name = "Cubo (arestas pretas)";
-	cube_edges.first_index = (void *)(36 * sizeof(GLuint));
+	cube_edges.first_index = (36 * sizeof(GLuint));
 	cube_edges.num_indices = 24;
 	cube_edges.rendering_mode = GL_LINES;
 	g_VirtualScene["cube_edges"] = cube_edges;
 	SceneObject axes;
 	axes.name = "Eixos XYZ";
-	axes.first_index = (void *)(60 * sizeof(GLuint));
+	axes.first_index = (60 * sizeof(GLuint));
 	axes.num_indices = 6;
 	axes.rendering_mode = GL_LINES;
 	g_VirtualScene["axes"] = axes;
