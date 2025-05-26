@@ -2,6 +2,7 @@
 #define _SCENE_H
 
 #include <string>
+#include <glad/glad.h> 
 
 using namespace std;
 
