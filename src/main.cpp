@@ -8,8 +8,16 @@
 #include "utils/text_rendering.h"
 #include "matrices.h"
 #include "obj_loader_utils.h"
+#include "functions.h" 
 
 using namespace std;
+
+// Variáveis que definem um programa de GPU (shaders). Veja função LoadShadersFromFiles().
+GLuint g_GpuProgramID = 0;
+GLint g_model_uniform;
+GLint g_view_uniform;
+GLint g_projection_uniform;
+GLint g_object_id_uniform;
 
 void TextRendering_ShowFramesPerSecond(GLFWwindow* window);
 GLuint CreateGpuProgram(GLuint vertex_shader_id, GLuint fragment_shader_id);
@@ -65,6 +73,16 @@ int main()
     const GLubyte *glversion   = glGetString(GL_VERSION);
     const GLubyte *glslversion = glGetString(GL_SHADING_LANGUAGE_VERSION);
     printf("GPU: %s, %s, OpenGL %s, GLSL %s\n", vendor, renderer, glversion, glslversion);
+
+
+    // Carregamos os shaders de vértices e de fragmentos que serão utilizados
+    // para renderização. Veja slides 180-200 do documento Aula_03_Rendering_Pipeline_Grafico.pdf.
+    LoadShadersFromFiles();
+
+    // Definicao de obj
+    ObjModel planemodel("../../data/plane.obj");
+    ComputeNormals(&planemodel);
+    BuildTrianglesAndAddToVirtualScene(&planemodel);
 
     glEnable(GL_DEPTH_TEST);    
     glEnable(GL_CULL_FACE);
@@ -138,3 +156,47 @@ GLuint CreateGpuProgram(GLuint vertex_shader_id, GLuint fragment_shader_id)
     // Retornamos o ID gerado acima
     return program_id;
 }
+
+// Função que carrega os shaders de vértices e de fragmentos que serão
+// utilizados para renderização. Veja slides 180-200 do documento Aula_03_Rendering_Pipeline_Grafico.pdf.
+//
+void LoadShadersFromFiles()
+{
+    // Note que o caminho para os arquivos "shader_vertex.glsl" e
+    // "shader_fragment.glsl" estão fixados, sendo que assumimos a existência
+    // da seguinte estrutura no sistema de arquivos:
+    //
+    //    + FCG_Lab_01/
+    //    |
+    //    +--+ bin/
+    //    |  |
+    //    |  +--+ Release/  (ou Debug/ ou Linux/)
+    //    |     |
+    //    |     o-- main.exe
+    //    |
+    //    +--+ src/
+    //       |
+    //       o-- shader_vertex.glsl
+    //       |
+    //       o-- shader_fragment.glsl
+    //
+    GLuint vertex_shader_id = LoadShader_Vertex("../../src/core/shader_vertex.glsl");
+    GLuint fragment_shader_id = LoadShader_Fragment("../../src/core/shader_fragment.glsl");
+
+    // Deletamos o programa de GPU anterior, caso ele exista.
+    if ( g_GpuProgramID != 0 )
+        glDeleteProgram(g_GpuProgramID);
+
+    // Criamos um programa de GPU utilizando os shaders carregados acima.
+    g_GpuProgramID = CreateGpuProgram(vertex_shader_id, fragment_shader_id);
+
+    // Buscamos o endereço das variáveis definidas dentro do Vertex Shader.
+    // Utilizaremos estas variáveis para enviar dados para a placa de vídeo
+    // (GPU)! Veja arquivo "shader_vertex.glsl" e "shader_fragment.glsl".
+    g_model_uniform      = glGetUniformLocation(g_GpuProgramID, "model"); // Variável da matriz "model"
+    g_view_uniform       = glGetUniformLocation(g_GpuProgramID, "view"); // Variável da matriz "view" em shader_vertex.glsl
+    g_projection_uniform = glGetUniformLocation(g_GpuProgramID, "projection"); // Variável da matriz "projection" em shader_vertex.glsl
+    g_object_id_uniform  = glGetUniformLocation(g_GpuProgramID, "object_id"); // Variável "object_id" em shader_fragment.glsl
+}
+
+
