@@ -1,4 +1,4 @@
-#include "core/shader_loader.h"
+#include "core/shader_loader.hpp"
 
 void LoadShadersFromFiles()
 {

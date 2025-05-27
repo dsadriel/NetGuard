@@ -1,5 +1,5 @@
-#ifndef _MATRICES_H
-#define _MATRICES_H
+#ifndef _MATRICES_HPP
+#define _MATRICES_HPP
 
 #include <cstdio>
 #include <cstdlib>

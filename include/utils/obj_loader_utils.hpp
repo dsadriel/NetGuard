@@ -1,5 +1,5 @@
-#ifndef _OBJ_LOADER_UTILS_H
-#define _OBJ_LOADER_UTILS_H
+#ifndef _OBJ_LOADER_UTILS_HPP
+#define _OBJ_LOADER_UTILS_HPP
 
 #include <iostream>
 #include "tiny_obj_loader.h"

@@ -1,8 +1,8 @@
-#ifndef _MOUSE_KEYBOARD_H
-#define _MOUSE_KEYBOARD_H
+#ifndef _MOUSE_KEYBOARD_HPP
+#define _MOUSE_KEYBOARD_HPP
 
-#include <glfw/glfw3.h>
-#include <game/Camera.h>
+#include <GLFW/glfw3.h>
+#include "game/camera.hpp"
 
 
 extern float g_ScreenRatio;

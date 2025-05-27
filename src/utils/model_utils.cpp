@@ -1,5 +1,5 @@
-#include "utils/model_utils.h"
-#include <core/scene.h>
+#include "utils/model_utils.hpp"
+#include "core/scene.hpp"
 
 // FIX: Substituir por objetos do jogo, agora sao apenas placeholders
 // ==================================================

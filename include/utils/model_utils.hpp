@@ -1,8 +1,8 @@
-#ifndef _MODEL_UTILS_H
-#define _MODEL_UTILS_H
+#ifndef _MODEL_UTILS_HPP
+#define _MODEL_UTILS_HPP
 
 #include <glad/glad.h>
-#include <core/scene.h>
+#include "core/scene.hpp"
 #include <map>
 #include <string>
 
