@@ -1,6 +1,7 @@
 set(SOURCES
   src/main.cpp
   src/utils/text_rendering.cpp
+  src/utils/model_utils.cpp
   src/core/glad.c
   src/core/shader_loader.cpp
   src/input/mouse_keyboard_callbacks.cpp
