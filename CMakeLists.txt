@@ -3,6 +3,8 @@ set(SOURCES
   src/utils/text_rendering.cpp
   src/core/glad.c
   src/core/shader_loader.cpp
+  src/input/mouse_keyboard_callbacks.cpp
+  src/matrices.cpp
 )
 
 cmake_minimum_required(VERSION 3.5.0)
