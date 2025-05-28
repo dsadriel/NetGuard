@@ -9,6 +9,6 @@
 
 extern map<string, SceneObject> g_VirtualScene;
 
-GLuint BuildTriangles();
+void DrawVirtualObject(const char *object_name);
 
 #endif
