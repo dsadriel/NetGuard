@@ -1,0 +1,4 @@
+{
+    // https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools
+    "C_Cpp.clang_format_style": "{BasedOnStyle: LLVM, IndentWidth: 4, UseTab: ForIndentation, TabWidth: 4, ColumnLimit: 120, BreakBeforeBraces: Attach}"
+}
