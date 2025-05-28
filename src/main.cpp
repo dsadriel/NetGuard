@@ -8,13 +8,13 @@
 #include <GLFW/glfw3.h> 
 #include <glm/gtc/type_ptr.hpp>
 
-#include "core/shader_loader.h"
-#include "core/scene.h"
-#include "utils/text_rendering.h"
-#include "utils/model_utils.h"
-#include "input/mouse_keyboard_callbacks.h"
-#include "matrices.h"
-#include "game/Camera.h"
+#include "core/shader_loader.hpp"
+#include "core/scene.hpp"
+#include "utils/text_rendering.hpp"
+#include "utils/model_utils.hpp"
+#include "input/mouse_keyboard_callbacks.hpp"
+#include "matrices.hpp"
+#include "game/camera.hpp"
 
 using namespace std;
 

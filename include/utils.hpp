@@ -1,5 +1,5 @@
-#ifndef _UTILS_H
-#define _UTILS_H
+#ifndef _UTILS_HPP
+#define _UTILS_HPP
 
 #include <cstdio>
 #include <glad/glad.h>

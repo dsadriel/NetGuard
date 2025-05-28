@@ -1,10 +1,10 @@
-#ifndef _CAMERA_H
-#define _CAMERA_H
+#ifndef _CAMERA_HPP
+#define _CAMERA_HPP
 
 #include <glm/mat4x4.hpp>
 #include <glm/vec4.hpp>
 
-#include "matrices.h"
+#include "matrices.hpp"
 
 class Camera {
   private:

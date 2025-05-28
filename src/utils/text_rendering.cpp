@@ -1,9 +1,9 @@
 // Based on http://hamelot.io/visualization/opengl-text-without-any-external-libraries/
 //   and on https://github.com/rougier/freetype-gl
 
-#include "utils/text_rendering.h"
-#include "dejavufont.h"
-#include "utils.h"
+#include "utils/text_rendering.hpp"
+#include "dejavufont.hpp"
+#include "utils.hpp"
 
 GLuint CreateGpuProgram(GLuint vertex_shader_id, GLuint fragment_shader_id); // Função definida em main.cpp
 

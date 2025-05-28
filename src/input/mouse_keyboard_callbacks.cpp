@@ -1,4 +1,4 @@
-#include "input/mouse_keyboard_callbacks.h"
+#include "input/mouse_keyboard_callbacks.hpp"
 
 
 // Função callback chamada sempre que o usuário aperta algum dos botões do mouse

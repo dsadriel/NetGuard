@@ -1,4 +1,4 @@
-#include "matrices.h"
+#include "matrices.hpp"
 
 // Esta função Matrix() auxilia na criação de matrizes usando a biblioteca GLM.
 // Note que em OpenGL (e GLM) as matrizes são definidas como "column-major",

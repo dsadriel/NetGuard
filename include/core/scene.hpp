@@ -1,5 +1,5 @@
-#ifndef _SCENE_H
-#define _SCENE_H
+#ifndef _SCENE_HPP
+#define _SCENE_HPP
 
 #include <string>
 #include <glad/glad.h> 
