@@ -15,6 +15,7 @@
 #include "input/mouse_keyboard_callbacks.hpp"
 #include "matrices.hpp"
 #include "game/camera.hpp"
+#include "utils/obj_loader_utils.hpp"
 
 using namespace std;
 
@@ -35,7 +36,6 @@ bool g_LeftMouseButtonPressed = false;
 float g_MovementSpeed = 0.05f;
 float g_MouseSensitivity = 0.005f;
 double g_LastCursorPosX, g_LastCursorPosY;
-
 
 // Variáveis que definem um programa de GPU (shaders). Veja função LoadShadersFromFiles().
 GLuint g_GpuProgramID = 0;
@@ -89,8 +89,6 @@ int main() {
 
 	LoadShadersFromFiles();
 
-	GLuint vertex_array_object_id = BuildTriangles();
-
 	TextRendering_Init();
 
 	GLint model_uniform = glGetUniformLocation(g_GpuProgramID, "model"); // Variável da matriz "model"
@@ -116,6 +114,10 @@ int main() {
 
 	TextRendering_Init();
 
+	ObjModel bunnymodel("../../assets/models/bunny.obj");
+	ComputeNormals(&bunnymodel);
+	BuildTrianglesAndAddToVirtualScene(&bunnymodel, &g_VirtualScene);
+
 	// ==================================================
 	// MARK: Loop Principal
 	// O loop principal do programa começa aqui.
@@ -127,8 +129,6 @@ int main() {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glUseProgram(g_GpuProgramID);
-
-		glBindVertexArray(vertex_array_object_id);
 
 		glm::mat4 view = g_Camera.getViewMatrix();
 
@@ -146,102 +146,10 @@ int main() {
 		// MARK: Desenho dos objetos
 		// ==================================================
 
-		// Vamos desenhar 3 instâncias (cópias) do cubo
-		for (int i = 1; i <= 3; ++i) {
-			// Cada cópia do cubo possui uma matriz de modelagem independente,
-			// já que cada cópia estará em uma posição (rotação, escala, ...)
-			// diferente em relação ao espaço global (World Coordinates). Veja
-			// slides 2-14 e 184-190 do documento Aula_08_Sistemas_de_Coordenadas.pdf.
-			glm::mat4 model;
-
-			if (i == 1) {
-				// A primeira cópia do cubo não sofrerá nenhuma transformação
-				// de modelagem. Portanto, sua matriz "model" é a identidade, e
-				// suas coordenadas no espaço global (World Coordinates) serão
-				// *exatamente iguais* a suas coordenadas no espaço do modelo
-				// (Model Coordinates).
-				model = Matrix_Identity();
-			} else if (i == 2) {
-				// A segunda cópia do cubo sofrerá um escalamento não-uniforme,
-				// seguido de uma rotação no eixo (1,1,1), e uma translação em Z (nessa ordem!).
-				model = Matrix_Translate(0.0f, 0.0f, -2.0f)                                  // TERCEIRO translação
-				        * Matrix_Rotate(3.141592f / 8.0f, glm::vec4(1.0f, 1.0f, 1.0f, 0.0f)) // SEGUNDO rotação
-				        * Matrix_Scale(2.0f, 0.5f, 0.5f);                                    // PRIMEIRO escala
-			} else if (i == 3) {
-				// A terceira cópia do cubo sofrerá rotações em X,Y e Z (nessa
-				// ordem) seguindo o sistema de ângulos de Euler, e após uma
-				// translação em X. Veja slides 106-107 do documento Aula_07_Transformacoes_Geometricas_3D.pdf.
-				model = Matrix_Translate(-2.0f, 0.0f, 0.0f); // QUARTO translação
-
-				// Armazenamos as matrizes model, view, e projection do terceiro cubo
-				// para mostrar elas na tela através da função TextRendering_ShowModelViewProjection().
-				the_model = model;
-				the_projection = projection;
-				the_view = view;
-			}
-
-			// Enviamos a matriz "model" para a placa de vídeo (GPU). Veja o
-			// arquivo "shader_vertex.glsl", onde esta é efetivamente
-			// aplicada em todos os pontos.
-			glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
-
-			// Informamos para a placa de vídeo (GPU) que a variável booleana
-			// "render_as_black" deve ser colocada como "false". Veja o arquivo
-			// "shader_vertex.glsl".
-			glUniform1i(render_as_black_uniform, false);
-
-			// Pedimos para a GPU rasterizar os vértices do cubo apontados pelo
-			// VAO como triângulos, formando as faces do cubo. Esta
-			// renderização irá executar o Vertex Shader definido no arquivo
-			// "shader_vertex.glsl", e o mesmo irá utilizar as matrizes
-			// "model", "view" e "projection" definidas acima e já enviadas
-			// para a placa de vídeo (GPU).
-			//
-			// Veja a definição de g_VirtualScene["cube_faces"] dentro da
-			// função BuildTriangles(), e veja a documentação da função
-			// glDrawElements() em http://docs.gl/gl3/glDrawElements.
-			glDrawElements(g_VirtualScene["cube_faces"]
-			                   .rendering_mode, // Veja slides 182-188 do documento Aula_04_Modelagem_Geometrica_3D.pdf
-			               g_VirtualScene["cube_faces"].num_indices, GL_UNSIGNED_INT,
-			               (void *)g_VirtualScene["cube_faces"].first_index);
-
-			// Pedimos para OpenGL desenhar linhas com largura de 4 pixels.
-			glLineWidth(4.0f);
-
-			// Pedimos para a GPU rasterizar os vértices dos eixos XYZ
-			// apontados pelo VAO como linhas. Veja a definição de
-			// g_VirtualScene["axes"] dentro da função BuildTriangles(), e veja
-			// a documentação da função glDrawElements() em
-			// http://docs.gl/gl3/glDrawElements.
-			//
-			// Importante: estes eixos serão desenhamos com a matriz "model"
-			// definida acima, e portanto sofrerão as mesmas transformações
-			// geométricas que o cubo. Isto é, estes eixos estarão
-			// representando o sistema de coordenadas do modelo (e não o global)!
-			glDrawElements(g_VirtualScene["axes"].rendering_mode, g_VirtualScene["axes"].num_indices, GL_UNSIGNED_INT,
-			               (void *)g_VirtualScene["axes"].first_index);
-
-			// Informamos para a placa de vídeo (GPU) que a variável booleana
-			// "render_as_black" deve ser colocada como "true". Veja o arquivo
-			// "shader_vertex.glsl".
-			glUniform1i(render_as_black_uniform, true);
-
-			// Pedimos para a GPU rasterizar os vértices do cubo apontados pelo
-			// VAO como linhas, formando as arestas pretas do cubo. Veja a
-			// definição de g_VirtualScene["cube_edges"] dentro da função
-			// BuildTriangles(), e veja a documentação da função
-			// glDrawElements() em http://docs.gl/gl3/glDrawElements.
-			glDrawElements(g_VirtualScene["cube_edges"].rendering_mode, g_VirtualScene["cube_edges"].num_indices,
-			               GL_UNSIGNED_INT, (void *)g_VirtualScene["cube_edges"].first_index);
-
-			// Desenhamos um ponto de tamanho 15 pixels em cima do terceiro vértice
-			// do terceiro cubo. Este vértice tem coordenada de modelo igual à
-			// (0.5, 0.5, 0.5, 1.0).
-			if (i == 3) {
-				glPointSize(15.0f);
-				glDrawArrays(GL_POINTS, 3, 1);
-			}
-		}
+		glm::mat4 model = Matrix_Identity(); // Transformação identidade de modelagem
+		glUniformMatrix4fv(g_model_uniform, 1, GL_FALSE, glm::value_ptr(model));
+		glUniform1i(g_object_id_uniform, 0);
+		DrawVirtualObject("the_bunny");
 
 		// Agora queremos desenhar os eixos XYZ de coordenadas GLOBAIS.
 		{
@@ -263,5 +171,3 @@ int main() {
 
 	return 0;
 }
-
-
