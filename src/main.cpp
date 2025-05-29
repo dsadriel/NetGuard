@@ -73,7 +73,7 @@ int main() {
 	glfwSetKeyCallback(window, KeyCallback);
 	glfwSetCursorPosCallback(window, CursorPosCallback);
 	glfwSetMouseButtonCallback(window, MouseButtonCallback);
-	// glfwSetScrollCallback(window, ScrollCallback);
+	// glfwSetScrollCallback(window, ScrollCallback); 
 
 	// glfwSetFramebufferSizeCallback(window, FramebufferSizeCallback);
 	glfwSetWindowSize(window, 1024, 768);
@@ -114,7 +114,7 @@ int main() {
 
 	TextRendering_Init();
 
-	ObjModel bunnymodel("../../assets/models/bunny.obj");
+	ObjModel bunnymodel("../../assets/models/map.obj");
 	ComputeNormals(&bunnymodel);
 	BuildTrianglesAndAddToVirtualScene(&bunnymodel, &g_VirtualScene);
 
@@ -146,10 +146,10 @@ int main() {
 		// MARK: Desenho dos objetos
 		// ==================================================
 
-		glm::mat4 model = Matrix_Identity(); // Transformação identidade de modelagem
+		glm::mat4 model = Matrix_Identity()*Matrix_Scale(0.1f, 0.1f, 0.1f); // Transformação identidade de modelagem
 		glUniformMatrix4fv(g_model_uniform, 1, GL_FALSE, glm::value_ptr(model));
 		glUniform1i(g_object_id_uniform, 0);
-		DrawVirtualObject("the_bunny");
+		DrawVirtualObject("map");
 
 		// Agora queremos desenhar os eixos XYZ de coordenadas GLOBAIS.
 		{
