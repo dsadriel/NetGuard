@@ -3,7 +3,12 @@
 
 #include <iostream>
 #include "tinyObjLoader/tiny_obj_loader.h"
+#include <glad/glad.h>   // Criação de contexto OpenGL 3.3
+#include <GLFW/glfw3.h>  // Criação de janelas do sistema operacional
+#include <glm/vec4.hpp>
+#include <cassert>
 #include "core/scene.hpp"
+#include "matrices.hpp"
 
 using namespace std;
 

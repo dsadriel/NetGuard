@@ -112,11 +112,9 @@ int main() {
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
 
-	TextRendering_Init();
-
-	ObjModel bunnymodel("../../assets/models/map.obj");
-	ComputeNormals(&bunnymodel);
-	BuildTrianglesAndAddToVirtualScene(&bunnymodel, &g_VirtualScene);
+	ObjModel mapModel("../../assets/models/map.obj");
+	ComputeNormals(&mapModel);
+	BuildTrianglesAndAddToVirtualScene(&mapModel, &g_VirtualScene);
 
 	// ==================================================
 	// MARK: Loop Principal

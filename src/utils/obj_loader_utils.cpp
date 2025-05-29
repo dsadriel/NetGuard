@@ -1,17 +1,4 @@
-
-// clang-format off
-
-#include <glad/glad.h>   // Criação de contexto OpenGL 3.3
-#include <GLFW/glfw3.h>  // Criação de janelas do sistema operacional
-#include <glm/vec4.hpp>
-#include <cassert>
-
 #include "utils/obj_loader_utils.hpp"
-#include "core/scene.hpp"
-#include "matrices.hpp"
-
-// clang-format on
-
 // Constrói triângulos para futura renderização a partir de um ObjModel.
 void BuildTrianglesAndAddToVirtualScene(ObjModel *model, map<string, SceneObject> *virtualScene) {
 	GLuint vertex_array_object_id;
