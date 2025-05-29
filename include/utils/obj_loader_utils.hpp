@@ -2,7 +2,8 @@
 #define _OBJ_LOADER_UTILS_HPP
 
 #include <iostream>
-#include "tiny_obj_loader.h"
+#include "tinyObjLoader/tiny_obj_loader.h"
+#include "core/scene.hpp"
 
 using namespace std;
 
@@ -63,5 +64,12 @@ struct ObjModel
         printf("OK.\n");
     }
 };
+
+// Constrói triângulos para futura renderização a partir de um ObjModel.
+void BuildTrianglesAndAddToVirtualScene(ObjModel *model,  map<string, SceneObject> *virtualScene);
+
+// Função que computa as normais de um ObjModel, caso elas não tenham sido
+// especificadas dentro do arquivo ".obj"
+void ComputeNormals(ObjModel *model);
 
 #endif

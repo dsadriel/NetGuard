@@ -6,6 +6,8 @@ set(SOURCES
   src/core/shader_loader.cpp
   src/input/mouse_keyboard_callbacks.cpp
   src/matrices.cpp
+  src/utils/obj_loader_utils.cpp
+  include/tinyObjLoader/tiny_obj_loader.cpp
 )
 
 cmake_minimum_required(VERSION 3.5.0)
