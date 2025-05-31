@@ -2,7 +2,7 @@
 #define _MOUSE_KEYBOARD_HPP
 
 #include <GLFW/glfw3.h>
-#include "game/camera.hpp"
+#include "game/net_guard.hpp"
 
 
 extern float g_ScreenRatio;
@@ -13,7 +13,7 @@ extern float g_MouseSensitivity;
 extern double g_LastCursorPosX;
 extern double g_LastCursorPosY;
 
-extern Camera g_Camera;
+extern NetGuard g_NetGuard;
 
 void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
 void CursorPosCallback(GLFWwindow* window, double xpos, double ypos);

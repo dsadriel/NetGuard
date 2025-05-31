@@ -14,7 +14,7 @@
 #include "utils/model_utils.hpp"
 #include "input/mouse_keyboard_callbacks.hpp"
 #include "matrices.hpp"
-#include "game/camera.hpp"
+#include "game/net_guard.hpp"
 #include "utils/obj_loader_utils.hpp"
 
 using namespace std;
@@ -25,13 +25,9 @@ using namespace std;
 // Todas as as variáveis globais devem ser declaradas aqui com o prefixo "g_"
 // ==================================================
 
-Camera g_Camera = Camera(glm::vec4(2.0f, 2.0f, 2.0f, 1.0f), // Posicao incial da camera
-                         -2.4f,                             // angulo de yaw (em radianos)
-                         -0.5f                              // angulo de pitch (em radianos)
-);
+NetGuard g_NetGuard = NetGuard(); 
 map<string, SceneObject> g_VirtualScene;
 float g_ScreenRatio = 1024.0f / 768.0f;
-bool g_UsePerspectiveProjection = true;
 bool g_LeftMouseButtonPressed = false;
 float g_MovementSpeed = 0.05f;
 float g_MouseSensitivity = 0.005f;
@@ -130,15 +126,9 @@ int main() {
 
 		glUseProgram(g_GpuProgramID);
 
-		glm::mat4 view = g_Camera.getViewMatrix();
+		glm::mat4 view = g_NetGuard.camera.getViewMatrix();
+		glm::mat4 projection = g_NetGuard.camera.getProjectionMatrix(g_ScreenRatio);
 
-		// Vamos definir a matriz de projeção.
-		glm::mat4 projection;
-		// Projeção Perspectiva.
-		float nearplane = -0.1f; // Posição do "near plane"
-		float farplane = -10.0f; // Posição do "far plane"
-		float field_of_view = 3.141592 / 3.0f;
-		projection = Matrix_Perspective(field_of_view, g_ScreenRatio, nearplane, farplane);
 		glUniformMatrix4fv(view_uniform, 1, GL_FALSE, glm::value_ptr(view));
 		glUniformMatrix4fv(projection_uniform, 1, GL_FALSE, glm::value_ptr(projection));
 
@@ -162,7 +152,12 @@ int main() {
 		}
 
 		glBindVertexArray(0);
+		
+		// Shows current FPS and stage
 		TextRendering_ShowFramesPerSecond(window);
+		std::string currentStage = g_NetGuard.getCurrentStageString();
+		TextRendering_PrintStringC(window, currentStage, -0.999f, 0.95f, glm::vec3(1.0f, 1.0f, 1.0f), 1.0f);
+
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}

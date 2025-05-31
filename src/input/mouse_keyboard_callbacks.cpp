@@ -1,6 +1,5 @@
 #include "input/mouse_keyboard_callbacks.hpp"
 
-
 // Função callback chamada sempre que o usuário aperta algum dos botões do mouse
 void MouseButtonCallback(GLFWwindow *window, int button, int action, int mods) {
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
@@ -29,11 +28,8 @@ void CursorPosCallback(GLFWwindow *window, double xpos, double ypos) {
 	float dy = ypos - g_LastCursorPosY;
 
 	// Atualiza o ângulo de visão da câmera utilizando a movimentação do mouse.
-	g_Camera.yaw -= dx * g_MouseSensitivity;
-	g_Camera.pitch -= dy * g_MouseSensitivity;
-
-	// Atualiza o view_vector da câmera utilizando os novos ângulos de visão.
-	g_Camera.updateViewVector();
+	g_NetGuard.camera.changeYaw(-dx * g_MouseSensitivity);
+	g_NetGuard.camera.changePitch(-dy * g_MouseSensitivity);
 
 	g_LastCursorPosX = xpos;
 	g_LastCursorPosY = ypos;
@@ -44,7 +40,7 @@ void CursorPosCallback(GLFWwindow *window, double xpos, double ypos) {
 // {
 //     // Atualizamos a distância da câmera para a origem utilizando a
 //     // movimentação da "rodinha", simulando um ZOOM.
-//     g_CameraDistance -= 0.1f*yoffset;
+//     g_NetGuard.cameraDistance -= 0.1f*yoffset;
 
 //     // Uma câmera look-at nunca pode estar exatamente "em cima" do ponto para
 //     // onde ela está olhando, pois isto gera problemas de divisão por zero na
@@ -52,8 +48,8 @@ void CursorPosCallback(GLFWwindow *window, double xpos, double ypos) {
 //     // nunca pode ser zero. Versões anteriores deste código possuíam este bug,
 //     // o qual foi detectado pelo aluno Vinicius Fraga (2017/2).
 //     const float verysmallnumber = numeric_limits<float>::epsilon();
-//     if (g_CameraDistance < verysmallnumber)
-//         g_CameraDistance = verysmallnumber;
+//     if (g_NetGuard.cameraDistance < verysmallnumber)
+//         g_NetGuard.cameraDistance = verysmallnumber;
 // }
 
 // Definição da função que será chamada sempre que o usuário pressionar alguma tecla do teclado.
@@ -63,16 +59,25 @@ void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mod)
 	if (action == GLFW_PRESS || action == GLFW_REPEAT) {
 		switch (key) {
 		case GLFW_KEY_W:
-			g_Camera.position += g_Camera.view_vector * g_MovementSpeed;
+			g_NetGuard.camera.move(CameraMovement::Forward, g_MovementSpeed);
 			break;
 		case GLFW_KEY_S:
-			g_Camera.position -= g_Camera.view_vector * g_MovementSpeed;
+			g_NetGuard.camera.move(CameraMovement::Backward, g_MovementSpeed);
 			break;
 		case GLFW_KEY_A:
-			g_Camera.position -= crossproduct(g_Camera.view_vector, g_Camera.up_vector) * g_MovementSpeed;
+			g_NetGuard.camera.move(CameraMovement::Left, g_MovementSpeed);
 			break;
 		case GLFW_KEY_D:
-			g_Camera.position += crossproduct(g_Camera.view_vector, g_Camera.up_vector) * g_MovementSpeed;
+			g_NetGuard.camera.move(CameraMovement::Right, g_MovementSpeed);
+			break;
+		case GLFW_KEY_X:
+			g_NetGuard.camera.move(CameraMovement::Up, g_MovementSpeed);
+			break;
+		case GLFW_KEY_Z:
+			g_NetGuard.camera.move(CameraMovement::Down, g_MovementSpeed);
+			break;
+		case GLFW_KEY_P:
+			g_NetGuard.nexStage();
 			break;
 		default:
 			break;
