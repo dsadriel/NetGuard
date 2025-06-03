@@ -25,7 +25,7 @@ using namespace std;
 // Todas as as variáveis globais devem ser declaradas aqui com o prefixo "g_"
 // ==================================================
 
-NetGuard g_NetGuard = NetGuard(); 
+NetGuard g_NetGuard = NetGuard();
 map<string, SceneObject> g_VirtualScene;
 float g_ScreenRatio = 1024.0f / 768.0f;
 bool g_LeftMouseButtonPressed = false;
@@ -69,7 +69,7 @@ int main() {
 	glfwSetKeyCallback(window, KeyCallback);
 	glfwSetCursorPosCallback(window, CursorPosCallback);
 	glfwSetMouseButtonCallback(window, MouseButtonCallback);
-	// glfwSetScrollCallback(window, ScrollCallback); 
+	// glfwSetScrollCallback(window, ScrollCallback);
 
 	// glfwSetFramebufferSizeCallback(window, FramebufferSizeCallback);
 	glfwSetWindowSize(window, 1024, 768);
@@ -87,22 +87,22 @@ int main() {
 
 	TextRendering_Init();
 
-	GLint model_uniform = glGetUniformLocation(g_GpuProgramID, "model"); // Variável da matriz "model"
+	// GLint model_uniform = glGetUniformLocation(g_GpuProgramID, "model"); // Variável da matriz "model"
 	GLint view_uniform =
 	    glGetUniformLocation(g_GpuProgramID, "view"); // Variável da matriz "view" em shader_vertex.glsl
 	GLint projection_uniform =
 	    glGetUniformLocation(g_GpuProgramID, "projection"); // Variável da matriz "projection" em shader_vertex.glsl
-	GLint render_as_black_uniform =
-	    glGetUniformLocation(g_GpuProgramID, "render_as_black"); // Variável booleana em shader_vertex.glsl
+	// GLint render_as_black_uniform =
+	// glGetUniformLocation(g_GpuProgramID, "render_as_black"); // Variável booleana em shader_vertex.glsl
 
 	// Habilitamos o Z-buffer. Veja slides 104-116 do documento Aula_09_Projecoes.pdf.
 	glEnable(GL_DEPTH_TEST);
 
 	// Variáveis auxiliares utilizadas para chamada à função
 	// TextRendering_ShowModelViewProjection(), armazenando matrizes 4x4.
-	glm::mat4 the_projection;
-	glm::mat4 the_model;
-	glm::mat4 the_view;
+	// glm::mat4 the_projection;
+	// glm::mat4 the_model;
+	// glm::mat4 the_view;
 
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
@@ -110,9 +110,9 @@ int main() {
 
 	TextRendering_Init();
 
-	ObjModel bunnymodel("../../assets/models/map.obj");
-	ComputeNormals(&bunnymodel);
-	BuildTrianglesAndAddToVirtualScene(&bunnymodel, &g_VirtualScene);
+	ObjModel mapModel("../../assets/models/map.obj");
+	ComputeNormals(&mapModel);
+	BuildTrianglesAndAddToVirtualScene(&mapModel);
 
 	// ==================================================
 	// MARK: Loop Principal
@@ -132,27 +132,28 @@ int main() {
 		glUniformMatrix4fv(view_uniform, 1, GL_FALSE, glm::value_ptr(view));
 		glUniformMatrix4fv(projection_uniform, 1, GL_FALSE, glm::value_ptr(projection));
 
-		// ==================================================
-		// MARK: Desenho dos objetos
-		// ==================================================
+// ==================================================
+// MARK: Desenho dos objetos
+// ==================================================
+#define MAP 0
 
-		glm::mat4 model = Matrix_Identity()*Matrix_Scale(0.1f, 0.1f, 0.1f); // Transformação identidade de modelagem
+		glm::mat4 model = Matrix_Identity() * Matrix_Scale(0.1f, 0.1f, 0.1f); // Transformação identidade de modelagem
 		glUniformMatrix4fv(g_model_uniform, 1, GL_FALSE, glm::value_ptr(model));
-		glUniform1i(g_object_id_uniform, 0);
+		glUniform1i(g_object_id_uniform, MAP);
 		DrawVirtualObject("map");
 
-		// Agora queremos desenhar os eixos XYZ de coordenadas GLOBAIS.
-		{
-			glm::mat4 model = Matrix_Identity();
-			glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
-			glLineWidth(10.0f);
-			glUniform1i(render_as_black_uniform, false);
-			glDrawElements(g_VirtualScene["axes"].rendering_mode, g_VirtualScene["axes"].num_indices, GL_UNSIGNED_INT,
-			               (void *)g_VirtualScene["axes"].first_index);
-		}
+		// // Agora queremos desenhar os eixos XYZ de coordenadas GLOBAIS.
+		// {
+		// 	glm::mat4 model = Matrix_Identity();
+		// 	glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
+		// 	glLineWidth(10.0f);
+		// 	glUniform1i(render_as_black_uniform, false);
+		// 	glDrawElements(g_VirtualScene["axes"].rendering_mode, g_VirtualScene["axes"].num_indices, GL_UNSIGNED_INT,
+		// 	               (void *)g_VirtualScene["axes"].first_index);
+		// }
 
 		glBindVertexArray(0);
-		
+
 		// Shows current FPS and stage
 		TextRendering_ShowFramesPerSecond(window);
 		std::string currentStage = g_NetGuard.getCurrentStageString();
