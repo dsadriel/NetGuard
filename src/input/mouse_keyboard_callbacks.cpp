@@ -79,6 +79,9 @@ void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mod)
 		case GLFW_KEY_P:
 			g_NetGuard.nexStage();
 			break;
+		case GLFW_KEY_ESCAPE:
+			glfwSetWindowShouldClose(window, GL_TRUE);
+			break;
 		default:
 			break;
 		}
