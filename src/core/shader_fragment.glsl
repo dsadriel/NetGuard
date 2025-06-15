@@ -14,6 +14,7 @@ uniform mat4 projection;
 
 // Identificador que define qual objeto está sendo desenhado no momento
 #define MAP  0
+#define THE_PLANE  1
 uniform int object_id;
 
 // O valor de saída ("out") de um Fragment Shader é a cor final do fragmento.
@@ -65,8 +66,8 @@ void main()
     }
     else // Objeto desconhecido = preto
     {
-        Kd = vec3(0.0, 0.0, 0.0);
-        Ks = vec3(0.0, 0.0, 0.0);
+        Kd = vec3(1.0, 1.0, 0.0);
+        Ks = vec3(0.3, 0.2, 0.6);
         Ka = vec3(0.0, 0.0, 0.0);
         q = 1.0;
     }

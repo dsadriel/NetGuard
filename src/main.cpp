@@ -123,6 +123,11 @@ int main() {
 	ComputeNormals(&netGuardLogoModel);
 	BuildTrianglesAndAddToVirtualScene(&netGuardLogoModel);
 
+	ObjModel thePlaneModel("../../assets/models/plane.obj");
+	ComputeNormals(&thePlaneModel);
+	BuildTrianglesAndAddToVirtualScene(&thePlaneModel);
+
+
 	// ==================================================
 	// MARK: Loop Principal
 	// O loop principal do programa começa aqui.
@@ -149,14 +154,16 @@ int main() {
 		g_NetGuard.draw(); // Desenha o estado atual do jogo
 
 
-		g_VirtualScene["map"].scale = glm::vec3(0.1f, 0.1f, 0.1f);
-		g_VirtualScene["map"].drawObject(g_model_uniform, 0, 0);
-
+		g_VirtualScene["map"].scale = glm::vec3(1.0f, 1.0f, 1.0f);
+		g_VirtualScene["map"].drawObject(g_model_uniform, g_object_id_uniform, 0);
 
 		g_VirtualScene["plane_netguard_logo"].scale = glm::vec3(20.0f, 20.0f, 20.0f);
 		g_VirtualScene["plane_netguard_logo"].position = glm::vec4(0.0f, 5.0f, 0.0f, 1.0f);
-		g_VirtualScene["plane_netguard_logo"].drawObject(g_model_uniform, 0, 0);
+		// g_VirtualScene["plane_netguard_logo"].drawObject(g_model_uniform, g_object_id_uniform, 0);
 
+
+		g_VirtualScene["the_plane"].position = glm::vec4(0.0f, 0.5f, 0.0f, 1.0f);
+		g_VirtualScene["the_plane"].drawObject(g_model_uniform, g_object_id_uniform, 1);
 
 
 		glBindVertexArray(0);
@@ -174,3 +181,5 @@ int main() {
 
 	return 0;
 }
+
+
