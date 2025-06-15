@@ -2,6 +2,7 @@
 # www.blender.org
 mtllib map.mtl
 o map
+usemtl mapTexture
 v -40.000000 4.395066 40.000000
 v 40.000000 2.834949 40.000000
 v -40.000000 3.160612 -40.000000
