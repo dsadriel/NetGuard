@@ -7,7 +7,7 @@
 
 #include "matrices.hpp"
 
-enum class CameraMode { FirstPerson, LookAt, TopDown };
+enum class CameraMode { Free, LookAt, TopDown };
 enum class CameraMovement { Forward, Backward, Left, Right, Up, Down };
 
 class Camera {
@@ -20,17 +20,39 @@ class Camera {
 	glm::vec4 position;
 	glm::vec4 up_vector;
 	glm::vec4 target = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+	CameraMode mode = CameraMode::Free;
 
 	float nearplane = -0.1f;
-	float farplane = -10.0f;
+	float farplane = -20.0f;
 	double field_of_view = 45.0;
 
-	 Camera(glm::vec4 pos, float yaw_rad, float pitch_rad)
-        : yaw(yaw_rad), pitch(pitch_rad), position(pos), up_vector(glm::vec4(0.0f, 1.0f, 0.0f, 0.0f)) {
-        updateViewVector();
-    }
-	
-	glm::mat4 getViewMatrix() { return Matrix_Camera_View(position, view_vector, up_vector); }
+	Camera(glm::vec4 pos, float yaw_rad, float pitch_rad)
+	    : yaw(yaw_rad), pitch(pitch_rad), position(pos), up_vector(glm::vec4(0.0f, 1.0f, 0.0f, 0.0f)) {
+		updateViewVector();
+	}
+
+	glm::mat4 getViewMatrix() {
+		glm::vec4 view_vector_;
+		glm::vec4 up_vec_;
+
+		switch (mode) {
+		case CameraMode::LookAt:
+			view_vector_ = target - position;
+			up_vec_ = up_vector;
+			return Matrix_Camera_View(position, view_vector_, up_vec_);
+
+		case CameraMode::TopDown:
+			view_vector_ = glm::vec4(0.0f, -1.0f, 0.0f, 0.0f);
+			up_vec_ = glm::vec4(0.0f, 0.0f, 1.0f, 0.0f);
+			return Matrix_Camera_View(position, view_vector_, up_vec_);
+
+		default: // CameraMode::Free ou outras
+			view_vector_ = view_vector;
+			up_vec_ = up_vector;
+			return Matrix_Camera_View(position, view_vector_, up_vec_);
+		}
+	}
+
 	glm::mat4 getProjectionMatrix(double screenRatio) {
 		return Matrix_Perspective(glm::radians(field_of_view), screenRatio, nearplane, farplane);
 	}
