@@ -2,6 +2,8 @@
 #define GAME_NET_GUARD_HPP
 
 #include "game/camera.hpp"
+#include "game/defense_unit.hpp"
+#include "game/invasion_unit.hpp"
 #include <glm/vec4.hpp>
 #include <string>
 #include <vector>
@@ -16,45 +18,9 @@ enum class NetGuardStage {
 	creditScreen
 };
 
-class DefenseUnit {
-  private:
-	glm::vec4 position;  // Position of the defense unit
-	glm::vec4 direction; // Direction the unit is facing
-  public:
-	DefenseUnit(glm::vec4 pos, glm::vec4 dir) : position(pos), direction(dir) {};
-
-	// Getters for position and direction
-	glm::vec4 getPosition() const { return position; }
-	glm::vec4 getDirection() const { return direction; }
-
-	// Setters for position and direction
-	void setPosition(const glm::vec4 &pos) { position = pos; }
-	void setDirection(const glm::vec4 &dir) { direction = dir; }
-
-	virtual void defenseAction() {}
-};
-
-class InvasionUnit {
-  private:
-	glm::vec4 position;  // Position of the invasion unit
-	glm::vec4 direction; // Direction the unit is facing
-  public:
-	InvasionUnit(glm::vec4 pos, glm::vec4 dir) : position(pos), direction(dir) {};
-
-	// Getters for position and direction
-	glm::vec4 getPosition() const { return position; }
-	glm::vec4 getDirection() const { return direction; }
-
-	// Setters for position and direction
-	void setPosition(const glm::vec4 &pos) { position = pos; }
-	void setDirection(const glm::vec4 &dir) { direction = dir; }
-
-	virtual void invasionAction() {}
-};
-
 class NetGuard {
   private:
-	NetGuardStage currentStage = NetGuardStage::onboarding;
+	NetGuardStage currentStage;
 
 	// List of defense units
 	std::vector<DefenseUnit> defenseUnits;
@@ -65,6 +31,8 @@ class NetGuard {
 	int currentInvasionWave = 0;
 	int playerScore = 0;
 	int playerLives = 3;
+	
+	int selectedUnitType = -1;
 
   public:
 	Camera camera = Camera(glm::vec4(2.0f, 2.0f, 2.0f, 1.0f), -2.4f, -0.5f);
@@ -132,13 +100,17 @@ class NetGuard {
 		// Update game logic based on the current stage
 		switch (currentStage) {
 		case NetGuardStage::onboarding:
-			// Handle onboarding logic
+			camera.target = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+			camera.position = glm::vec4(2.0f, 2.0f, 2.0f, 1.0f);
+			camera.mode = CameraMode::LookAt;
 			break;
 		case NetGuardStage::defenseDeployment:
 			// Handle adding defense units logic
+			defenseDeploymentUpdate();
 			break;
 		case NetGuardStage::invasionPhase:
 			// Handle invasion phase logic
+			camera.mode = CameraMode::Free;
 			break;
 		case NetGuardStage::invasionPhaseCompleted:
 			// Handle invasion phase completed logic
@@ -181,6 +153,12 @@ class NetGuard {
 			// Draw credit screen
 			break;
 		}
+	}
+
+
+	void defenseDeploymentUpdate(){
+		camera.position = glm::vec4(0.0f, 5.0f, 0.0f, 1.0f);
+		camera.mode = CameraMode::TopDown;
 	}
 };
 
