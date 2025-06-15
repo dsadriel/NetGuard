@@ -110,9 +110,18 @@ int main() {
 
 	TextRendering_Init();
 
+	// ==================================================
+	// MARK: Carrega os objetos
+	//
+	// ==================================================
+	
 	ObjModel mapModel("../../assets/models/map.obj");
 	ComputeNormals(&mapModel);
 	BuildTrianglesAndAddToVirtualScene(&mapModel);
+
+	ObjModel netGuardLogoModel("../../assets/models/plane_netguard_logo.obj");
+	ComputeNormals(&netGuardLogoModel);
+	BuildTrianglesAndAddToVirtualScene(&netGuardLogoModel);
 
 	// ==================================================
 	// MARK: Loop Principal
@@ -132,25 +141,23 @@ int main() {
 		glUniformMatrix4fv(view_uniform, 1, GL_FALSE, glm::value_ptr(view));
 		glUniformMatrix4fv(projection_uniform, 1, GL_FALSE, glm::value_ptr(projection));
 
-// ==================================================
-// MARK: Desenho dos objetos
-// ==================================================
-#define MAP 0
+		// ==================================================
+		// MARK: Atualiza e desenha o jogo
+		// ==================================================
 
-		glm::mat4 model = Matrix_Identity() * Matrix_Scale(0.1f, 0.1f, 0.1f); // Transformação identidade de modelagem
-		glUniformMatrix4fv(g_model_uniform, 1, GL_FALSE, glm::value_ptr(model));
-		glUniform1i(g_object_id_uniform, MAP);
-		DrawVirtualObject("map");
+		g_NetGuard.update(0.016f); // Atualiza o estado do jogo a cada frame (60 FPS)
+		g_NetGuard.draw(); // Desenha o estado atual do jogo
 
-		// // Agora queremos desenhar os eixos XYZ de coordenadas GLOBAIS.
-		// {
-		// 	glm::mat4 model = Matrix_Identity();
-		// 	glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
-		// 	glLineWidth(10.0f);
-		// 	glUniform1i(render_as_black_uniform, false);
-		// 	glDrawElements(g_VirtualScene["axes"].rendering_mode, g_VirtualScene["axes"].num_indices, GL_UNSIGNED_INT,
-		// 	               (void *)g_VirtualScene["axes"].first_index);
-		// }
+
+		g_VirtualScene["map"].scale = glm::vec3(0.1f, 0.1f, 0.1f);
+		g_VirtualScene["map"].drawObject(g_model_uniform, 0, 0);
+
+
+		g_VirtualScene["plane_netguard_logo"].scale = glm::vec3(20.0f, 20.0f, 20.0f);
+		g_VirtualScene["plane_netguard_logo"].position = glm::vec4(0.0f, 5.0f, 0.0f, 1.0f);
+		g_VirtualScene["plane_netguard_logo"].drawObject(g_model_uniform, 0, 0);
+
+
 
 		glBindVertexArray(0);
 
