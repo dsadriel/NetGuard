@@ -23,7 +23,7 @@ class Camera {
 	CameraMode mode = CameraMode::Free;
 
 	float nearplane = -0.1f;
-	float farplane = -20.0f;
+	float farplane = -100.0f;
 	double field_of_view = 45.0;
 
 	Camera(glm::vec4 pos, float yaw_rad, float pitch_rad)
