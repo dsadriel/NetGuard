@@ -119,9 +119,9 @@ int main() {
 	ComputeNormals(&mapModel);
 	BuildTrianglesAndAddToVirtualScene(&mapModel);
 
-	ObjModel netGuardLogoModel("../../assets/models/plane_netguard_logo.obj");
-	ComputeNormals(&netGuardLogoModel);
-	BuildTrianglesAndAddToVirtualScene(&netGuardLogoModel);
+	ObjModel neoCatModel("../../assets/models/neocat/neocat.obj");
+	ComputeNormals(&neoCatModel);
+	BuildTrianglesAndAddToVirtualScene(&neoCatModel);
 
 	ObjModel thePlaneModel("../../assets/models/plane.obj");
 	ComputeNormals(&thePlaneModel);
@@ -157,13 +157,11 @@ int main() {
 		g_VirtualScene["map"].scale = glm::vec3(1.0f, 1.0f, 1.0f);
 		g_VirtualScene["map"].drawObject(g_model_uniform, g_object_id_uniform, 0);
 
-		g_VirtualScene["plane_netguard_logo"].scale = glm::vec3(20.0f, 20.0f, 20.0f);
-		g_VirtualScene["plane_netguard_logo"].position = glm::vec4(0.0f, 5.0f, 0.0f, 1.0f);
-		// g_VirtualScene["plane_netguard_logo"].drawObject(g_model_uniform, g_object_id_uniform, 0);
-
-
 		g_VirtualScene["the_plane"].position = glm::vec4(0.0f, 0.5f, 0.0f, 1.0f);
 		g_VirtualScene["the_plane"].drawObject(g_model_uniform, g_object_id_uniform, 1);
+
+		g_VirtualScene["neocat"].position = glm::vec4(0.0f, 1.5f, 0.0f, 1.0f);
+		g_VirtualScene["neocat"].drawObject(g_model_uniform, g_object_id_uniform, 2);
 
 
 		glBindVertexArray(0);
