@@ -108,6 +108,7 @@ int main() {
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
 
+
 	TextRendering_Init();
 
 	// ==================================================
@@ -126,7 +127,6 @@ int main() {
 	ObjModel thePlaneModel("../../assets/models/plane.obj");
 	ComputeNormals(&thePlaneModel);
 	BuildTrianglesAndAddToVirtualScene(&thePlaneModel);
-
 
 	// ==================================================
 	// MARK: Loop Principal

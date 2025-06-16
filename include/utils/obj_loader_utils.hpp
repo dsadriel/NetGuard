@@ -5,6 +5,7 @@
 #include "tinyObjLoader/tiny_obj_loader.h"
 #include <iostream>
 
+
 using namespace std;
 
 // Estrutura que representa um modelo geométrico carregado a partir de um

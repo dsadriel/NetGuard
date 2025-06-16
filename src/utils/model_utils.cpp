@@ -1,5 +1,4 @@
 #include "utils/model_utils.hpp"
-#include "core/scene.hpp"
 
 // Função que desenha um objeto armazenado em g_VirtualScene. Veja definição
 // dos objetos na função BuildTrianglesAndAddToVirtualScene().
