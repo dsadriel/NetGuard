@@ -14,7 +14,7 @@
 #include "utils/model_utils.hpp"
 #include "input/mouse_keyboard_callbacks.hpp"
 #include "matrices.hpp"
-#include "game/camera.hpp"
+#include "game/net_guard.hpp"
 #include "utils/obj_loader_utils.hpp"
 
 using namespace std;
@@ -25,13 +25,9 @@ using namespace std;
 // Todas as as variáveis globais devem ser declaradas aqui com o prefixo "g_"
 // ==================================================
 
-Camera g_Camera = Camera(glm::vec4(2.0f, 2.0f, 2.0f, 1.0f), // Posicao incial da camera
-                         -2.4f,                             // angulo de yaw (em radianos)
-                         -0.5f                              // angulo de pitch (em radianos)
-);
+NetGuard g_NetGuard = NetGuard();
 map<string, SceneObject> g_VirtualScene;
 float g_ScreenRatio = 1024.0f / 768.0f;
-bool g_UsePerspectiveProjection = true;
 bool g_LeftMouseButtonPressed = false;
 float g_MovementSpeed = 0.05f;
 float g_MouseSensitivity = 0.005f;
@@ -73,7 +69,7 @@ int main() {
 	glfwSetKeyCallback(window, KeyCallback);
 	glfwSetCursorPosCallback(window, CursorPosCallback);
 	glfwSetMouseButtonCallback(window, MouseButtonCallback);
-	// glfwSetScrollCallback(window, ScrollCallback); 
+	// glfwSetScrollCallback(window, ScrollCallback);
 
 	// glfwSetFramebufferSizeCallback(window, FramebufferSizeCallback);
 	glfwSetWindowSize(window, 1024, 768);
@@ -91,30 +87,46 @@ int main() {
 
 	TextRendering_Init();
 
-	GLint model_uniform = glGetUniformLocation(g_GpuProgramID, "model"); // Variável da matriz "model"
+	// GLint model_uniform = glGetUniformLocation(g_GpuProgramID, "model"); // Variável da matriz "model"
 	GLint view_uniform =
 	    glGetUniformLocation(g_GpuProgramID, "view"); // Variável da matriz "view" em shader_vertex.glsl
 	GLint projection_uniform =
 	    glGetUniformLocation(g_GpuProgramID, "projection"); // Variável da matriz "projection" em shader_vertex.glsl
-	GLint render_as_black_uniform =
-	    glGetUniformLocation(g_GpuProgramID, "render_as_black"); // Variável booleana em shader_vertex.glsl
+	// GLint render_as_black_uniform =
+	// glGetUniformLocation(g_GpuProgramID, "render_as_black"); // Variável booleana em shader_vertex.glsl
 
 	// Habilitamos o Z-buffer. Veja slides 104-116 do documento Aula_09_Projecoes.pdf.
 	glEnable(GL_DEPTH_TEST);
 
 	// Variáveis auxiliares utilizadas para chamada à função
 	// TextRendering_ShowModelViewProjection(), armazenando matrizes 4x4.
-	glm::mat4 the_projection;
-	glm::mat4 the_model;
-	glm::mat4 the_view;
+	// glm::mat4 the_projection;
+	// glm::mat4 the_model;
+	// glm::mat4 the_view;
 
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
 
+
+	TextRendering_Init();
+
+	// ==================================================
+	// MARK: Carrega os objetos
+	//
+	// ==================================================
+	
 	ObjModel mapModel("../../assets/models/map.obj");
 	ComputeNormals(&mapModel);
-	BuildTrianglesAndAddToVirtualScene(&mapModel, &g_VirtualScene);
+	BuildTrianglesAndAddToVirtualScene(&mapModel);
+
+	ObjModel neoCatModel("../../assets/models/neocat/neocat.obj");
+	ComputeNormals(&neoCatModel);
+	BuildTrianglesAndAddToVirtualScene(&neoCatModel);
+
+	ObjModel thePlaneModel("../../assets/models/plane.obj");
+	ComputeNormals(&thePlaneModel);
+	BuildTrianglesAndAddToVirtualScene(&thePlaneModel);
 
 	// ==================================================
 	// MARK: Loop Principal
@@ -128,39 +140,37 @@ int main() {
 
 		glUseProgram(g_GpuProgramID);
 
-		glm::mat4 view = g_Camera.getViewMatrix();
+		glm::mat4 view = g_NetGuard.camera.getViewMatrix();
+		glm::mat4 projection = g_NetGuard.camera.getProjectionMatrix(g_ScreenRatio);
 
-		// Vamos definir a matriz de projeção.
-		glm::mat4 projection;
-		// Projeção Perspectiva.
-		float nearplane = -0.1f; // Posição do "near plane"
-		float farplane = -10.0f; // Posição do "far plane"
-		float field_of_view = 3.141592 / 3.0f;
-		projection = Matrix_Perspective(field_of_view, g_ScreenRatio, nearplane, farplane);
 		glUniformMatrix4fv(view_uniform, 1, GL_FALSE, glm::value_ptr(view));
 		glUniformMatrix4fv(projection_uniform, 1, GL_FALSE, glm::value_ptr(projection));
 
 		// ==================================================
-		// MARK: Desenho dos objetos
+		// MARK: Atualiza e desenha o jogo
 		// ==================================================
 
-		glm::mat4 model = Matrix_Identity()*Matrix_Scale(0.1f, 0.1f, 0.1f); // Transformação identidade de modelagem
-		glUniformMatrix4fv(g_model_uniform, 1, GL_FALSE, glm::value_ptr(model));
-		glUniform1i(g_object_id_uniform, 0);
-		DrawVirtualObject("map");
+		g_NetGuard.update(0.016f); // Atualiza o estado do jogo a cada frame (60 FPS)
+		g_NetGuard.draw(); // Desenha o estado atual do jogo
 
-		// Agora queremos desenhar os eixos XYZ de coordenadas GLOBAIS.
-		{
-			glm::mat4 model = Matrix_Identity();
-			glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
-			glLineWidth(10.0f);
-			glUniform1i(render_as_black_uniform, false);
-			glDrawElements(g_VirtualScene["axes"].rendering_mode, g_VirtualScene["axes"].num_indices, GL_UNSIGNED_INT,
-			               (void *)g_VirtualScene["axes"].first_index);
-		}
+
+		g_VirtualScene["map"].scale = glm::vec3(1.0f, 1.0f, 1.0f);
+		g_VirtualScene["map"].drawObject(g_model_uniform, g_object_id_uniform, 0);
+
+		g_VirtualScene["the_plane"].position = glm::vec4(0.0f, 0.5f, 0.0f, 1.0f);
+		g_VirtualScene["the_plane"].drawObject(g_model_uniform, g_object_id_uniform, 1);
+
+		g_VirtualScene["neocat"].position = glm::vec4(0.0f, 1.5f, 0.0f, 1.0f);
+		g_VirtualScene["neocat"].drawObject(g_model_uniform, g_object_id_uniform, 2);
+
 
 		glBindVertexArray(0);
+
+		// Shows current FPS and stage
 		TextRendering_ShowFramesPerSecond(window);
+		std::string currentStage = g_NetGuard.getCurrentStageString();
+		TextRendering_PrintStringC(window, currentStage, -0.999f, 0.95f, glm::vec3(1.0f, 1.0f, 1.0f), 1.0f);
+
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
@@ -169,3 +179,5 @@ int main() {
 
 	return 0;
 }
+
+

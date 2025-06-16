@@ -1,6 +1,6 @@
 #include "utils/obj_loader_utils.hpp"
 // Constrói triângulos para futura renderização a partir de um ObjModel.
-void BuildTrianglesAndAddToVirtualScene(ObjModel *model, map<string, SceneObject> *virtualScene) {
+void BuildTrianglesAndAddToVirtualScene(ObjModel *model) {
 	GLuint vertex_array_object_id;
 	glGenVertexArrays(1, &vertex_array_object_id);
 	glBindVertexArray(vertex_array_object_id);
@@ -64,7 +64,7 @@ void BuildTrianglesAndAddToVirtualScene(ObjModel *model, map<string, SceneObject
 		theobject.rendering_mode = GL_TRIANGLES; // Índices correspondem ao tipo de rasterização GL_TRIANGLES.
 		theobject.vertex_array_object_id = vertex_array_object_id;
 
-		(*virtualScene)[model->shapes[shape].name] = theobject;
+		g_VirtualScene[model->shapes[shape].name] = theobject;
 	}
 
 	GLuint VBO_model_coefficients_id;
