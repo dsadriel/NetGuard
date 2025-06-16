@@ -44,9 +44,6 @@ GLint g_view_uniform;
 GLint g_projection_uniform;
 GLint g_object_id_uniform;
 
-GLuint mapTexture;
-
-
 // ==================================================
 // MARK: Programa Principal
 // ==================================================
@@ -112,12 +109,8 @@ int main() {
 	glm::mat4 the_view;
 
 	glEnable(GL_CULL_FACE);
-	glEnable(GL_TEXTURE_2D);
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
-
-	mapTexture = LoadTextureFromFile("../../assets/textures/mapTexture.png");
-
 
 	ObjModel mapModel("../../assets/models/map.obj");
 	ComputeNormals(&mapModel);
@@ -154,7 +147,6 @@ int main() {
 		glm::mat4 model = Matrix_Identity()*Matrix_Scale(0.1f, 0.1f, 0.1f); // Transformação identidade de modelagem
 		glUniformMatrix4fv(g_model_uniform, 1, GL_FALSE, glm::value_ptr(model));
 		glUniform1i(g_object_id_uniform, 0);
-		glActiveTexture(GL_TEXTURE0); // como so estamos usando uma textura, utilizamos GL_TEXTURE0
 		DrawVirtualObject("map");
 
 		// Agora queremos desenhar os eixos XYZ de coordenadas GLOBAIS.
