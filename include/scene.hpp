@@ -2,8 +2,8 @@
 #define _SCENE_HPP
 
 #include <string>
-#include <glad/glad.h> 
-#include <glm/gtc/type_ptr.hpp>
+#include <external/glad/glad.h> 
+#include <external/glm/gtc/type_ptr.hpp>
 
 #include "matrices.hpp"
 

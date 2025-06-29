@@ -9,7 +9,7 @@ set(SOURCES
   src/input/mouse_keyboard_callbacks.cpp
   src/matrices.cpp
   src/utils/obj_loader_utils.cpp
-  include/tinyObjLoader/tiny_obj_loader.cpp
+  include/external/tinyObjLoader/tiny_obj_loader.cpp
 )
 
 set(CMAKE_CXX_STANDARD          11)

@@ -6,11 +6,11 @@
 
 #include <string>
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
+#include <external/glad/glad.h>
+#include <external/GLFW/glfw3.h>
 
-#include <glm/mat4x4.hpp>
-#include <glm/vec4.hpp>
+#include <external/glm/mat4x4.hpp>
+#include <external/glm/vec4.hpp>
 
 
 GLuint CreateGpuProgram(GLuint vertex_shader_id, GLuint fragment_shader_id); 

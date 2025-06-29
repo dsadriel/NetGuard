@@ -1,7 +1,7 @@
 #ifndef _INVASION_UNIT_HPP
 #define _INVASION_UNIT_HPP
 
-#include <glm/vec4.hpp>
+#include <external/glm/vec4.hpp>
 
 class InvasionUnit {
     private:

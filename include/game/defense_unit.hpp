@@ -1,7 +1,7 @@
 #ifndef _DEFENSE_UNIT_HPP
 #define _DEFENSE_UNIT_HPP
 
-#include <glm/vec4.hpp>
+#include <external/glm/vec4.hpp>
 
 class DefenseUnit {
   private:

@@ -4,9 +4,9 @@
 #include <string>
 #include <map>
 
-#include <glad/glad.h>   
+#include <external/glad/glad.h>   
 #include <GLFW/glfw3.h> 
-#include <glm/gtc/type_ptr.hpp>
+#include <external/glm/gtc/type_ptr.hpp>
 
 #include "core/shader_loader.hpp"
 #include "core/scene.hpp"

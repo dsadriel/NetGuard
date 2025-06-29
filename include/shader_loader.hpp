@@ -1,9 +1,9 @@
 #ifndef SHADERLOADER_HPP_
 #define SHADERLOADER_HPP_
 
-#include <glad/glad.h>   
+#include <external/glad/glad.h>   
 #include <GLFW/glfw3.h> 
-#include <glm/gtc/type_ptr.hpp>
+#include <external/glm/gtc/type_ptr.hpp>
 
 #include <fstream>
 #include <sstream>
