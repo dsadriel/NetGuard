@@ -3,7 +3,7 @@
 
 #include "utils/text_rendering.hpp"
 #include "dejavufont.hpp"
-#include "utils.hpp"
+#include "utils/utils.hpp"
 
 GLuint CreateGpuProgram(GLuint vertex_shader_id, GLuint fragment_shader_id); // Função definida em main.cpp
 

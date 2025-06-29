@@ -8,8 +8,8 @@
 #include <GLFW/glfw3.h> 
 #include <external/glm/gtc/type_ptr.hpp>
 
-#include "core/shader_loader.hpp"
-#include "core/scene.hpp"
+#include "shader_loader.hpp"
+#include "scene.hpp"
 #include "utils/text_rendering.hpp"
 #include "utils/model_utils.hpp"
 #include "input/mouse_keyboard_callbacks.hpp"
