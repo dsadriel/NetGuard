@@ -57,9 +57,9 @@ int main() {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	#ifdef __APPLE__
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-	#endif
+#ifdef __APPLE__
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+#endif
 
 	GLFWwindow *window;
 	window = glfwCreateWindow(1024, 768, "NetGuard: In a world of chaos, be the firewall", NULL, NULL);
@@ -95,9 +95,12 @@ int main() {
 	    glGetUniformLocation(g_GpuProgramID, "view"); // Variável da matriz "view" em shader_vertex.glsl
 	GLint projection_uniform =
 	    glGetUniformLocation(g_GpuProgramID, "projection"); // Variável da matriz "projection" em shader_vertex.glsl
-	// GLint render_as_black_uniform =
-	// glGetUniformLocation(g_GpuProgramID, "render_as_black"); // Variável booleana em shader_vertex.glsl
-
+	GLint object_style_uniform = glGetUniformLocation(g_GpuProgramID, "object_style");
+	GLint object_color_uniform = glGetUniformLocation(g_GpuProgramID, "object_color");
+	GLint texture0_uniform = glGetUniformLocation(g_GpuProgramID, "TextureImage0");
+	GLint texture1_uniform = glGetUniformLocation(g_GpuProgramID, "TextureImage1");
+	GLint texture2_uniform = glGetUniformLocation(g_GpuProgramID, "TextureImage2");
+	
 	// Habilitamos o Z-buffer. Veja slides 104-116 do documento Aula_09_Projecoes.pdf.
 	glEnable(GL_DEPTH_TEST);
 
@@ -111,14 +114,13 @@ int main() {
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
 
-
 	TextRendering_Init();
 
 	// ==================================================
 	// MARK: Carrega os objetos
 	//
 	// ==================================================
-	
+
 	ObjModel mapModel("../../assets/models/map.obj");
 	ComputeNormals(&mapModel);
 	BuildTrianglesAndAddToVirtualScene(&mapModel);
@@ -154,18 +156,14 @@ int main() {
 		// ==================================================
 
 		g_NetGuard.update(0.016f); // Atualiza o estado do jogo a cada frame (60 FPS)
-		g_NetGuard.draw(); // Desenha o estado atual do jogo
-
+		g_NetGuard.draw();         // Desenha o estado atual do jogo
 
 		g_VirtualScene["map"].scale = glm::vec3(1.0f, 1.0f, 1.0f);
-		g_VirtualScene["map"].drawObject(g_model_uniform, g_object_id_uniform, 0);
-
-		g_VirtualScene["the_plane"].position = glm::vec4(0.0f, 0.5f, 0.0f, 1.0f);
-		g_VirtualScene["the_plane"].drawObject(g_model_uniform, g_object_id_uniform, 1);
+		g_VirtualScene["map"].drawObject(g_model_uniform, object_style_uniform, object_color_uniform);
+		g_VirtualScene["map"].color = vec4(1.0f, 1.0f, 1.0f, 1.0f);
 
 		g_VirtualScene["neocat"].position = glm::vec4(0.0f, 1.5f, 0.0f, 1.0f);
-		g_VirtualScene["neocat"].drawObject(g_model_uniform, g_object_id_uniform, 2);
-
+		g_VirtualScene["neocat"].drawObject(g_model_uniform, object_style_uniform, object_color_uniform);
 
 		glBindVertexArray(0);
 
@@ -182,5 +180,3 @@ int main() {
 
 	return 0;
 }
-
-
