@@ -4,6 +4,7 @@
 #include "game/camera.hpp"
 #include "game/defense_unit.hpp"
 #include "game/invasion_unit.hpp"
+#include <external/GLFW/glfw3.h>
 #include <external/glm/vec4.hpp>
 #include <string>
 #include <vector>
@@ -36,7 +37,7 @@ class NetGuard {
 
 	int selectedUnitType = -1;
 
-	GLFWwindow* window;
+	GLFWwindow *window;
 
   public:
 	Camera camera = Camera(glm::vec4(2.0f, 2.0f, 2.0f, 1.0f), -2.4f, -0.5f);
@@ -51,9 +52,7 @@ class NetGuard {
 		playerLives = 3;
 	}
 
-	void configure(GLFWwindow* window){
-		this->window = window;
-	}
+	void configure(GLFWwindow *window) { this->window = window; }
 
 	NetGuardStage getCurrentStage() const { return currentStage; }
 
@@ -108,9 +107,7 @@ class NetGuard {
 		// Update game logic based on the current stage
 		switch (currentStage) {
 		case NetGuardStage::onboarding:
-			camera.target = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-			camera.position = glm::vec4(2.0f, 2.0f, 2.0f, 1.0f);
-			camera.mode = CameraMode::LookAt;
+			onboardingUpdate(deltaTime);
 			break;
 		case NetGuardStage::defenseDeployment:
 			// Handle adding defense units logic
@@ -165,8 +162,22 @@ class NetGuard {
 	}
 
 	void defenseDeploymentUpdate() {
-		camera.position = glm::vec4(0.0f, 5.0f, 0.0f, 1.0f);
+		camera.position = glm::vec4(0.0f, 40.0f, 0.0f, 1.0f);
 		camera.mode = CameraMode::TopDown;
+	}
+
+	void onboardingUpdate(float deltaTime) {
+		static int onboardingUpdateStage = 0;
+
+		if (onboardingUpdateStage == 0) {
+			camera.target = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+			camera.position = glm::vec4(20.0f, 30.0f, 20.0f, 1.0f);
+			camera.mode = CameraMode::LookAt;
+			onboardingUpdateStage++;
+		} else {
+			camera.position.x += camera.position.z/2 * deltaTime;
+			camera.position.z += -camera.position.x/2 * deltaTime;
+		}
 	}
 
 	void handleMovement(float deltaTime) {
