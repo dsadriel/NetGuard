@@ -2,7 +2,7 @@
 #define _UTILS_HPP
 
 #include <cstdio>
-#include <glad/glad.h>
+#include <external/glad/glad.h>
 
 static GLenum glCheckError_(const char *file, int line)
 {

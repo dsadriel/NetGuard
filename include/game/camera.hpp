@@ -1,9 +1,9 @@
 #ifndef _CAMERA_HPP
 #define _CAMERA_HPP
 
-#include <glm/glm.hpp>
-#include <glm/mat4x4.hpp>
-#include <glm/vec4.hpp>
+#include <external/glm/glm.hpp>
+#include <external/glm/mat4x4.hpp>
+#include <external/glm/vec4.hpp>
 
 #include "matrices.hpp"
 

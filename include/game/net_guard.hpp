@@ -4,7 +4,7 @@
 #include "game/camera.hpp"
 #include "game/defense_unit.hpp"
 #include "game/invasion_unit.hpp"
-#include <glm/vec4.hpp>
+#include <external/glm/vec4.hpp>
 #include <string>
 #include <vector>
 

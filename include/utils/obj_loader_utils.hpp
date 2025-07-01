@@ -1,8 +1,8 @@
 #ifndef _OBJ_LOADER_UTILS_HPP
 #define _OBJ_LOADER_UTILS_HPP
 
-#include "core/scene.hpp"
-#include "tinyObjLoader/tiny_obj_loader.h"
+#include "scene.hpp"
+#include <external/tinyObjLoader/tiny_obj_loader.h>
 #include <iostream>
 
 
