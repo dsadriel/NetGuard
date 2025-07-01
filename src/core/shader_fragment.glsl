@@ -7,6 +7,8 @@
 in vec4 position_world;
 in vec4 normal;
 
+in vec2 texture_coordinates;
+
 // Matrizes computadas no código C++ e enviadas para a GPU
 uniform mat4 model;
 uniform mat4 view;

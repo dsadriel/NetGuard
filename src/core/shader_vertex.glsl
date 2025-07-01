@@ -17,6 +17,7 @@ uniform mat4 projection;
 // Shader. Veja o arquivo "shader_fragment.glsl".
 out vec4 position_world;
 out vec4 normal;
+out vec2 texture_coordinates;
 
 void main()
 {
@@ -44,6 +45,8 @@ void main()
     //     gl_Position.z = model_coefficients.z;
     //     gl_Position.w = model_coefficients.w;
     //
+
+    texture_coordinates = texture_coefficients;
 
     // Agora definimos outros atributos dos vértices que serão interpolados pelo
     // rasterizador para gerar atributos únicos para cada fragmento gerado.
