@@ -29,9 +29,12 @@ NetGuard g_NetGuard = NetGuard();
 map<string, SceneObject> g_VirtualScene;
 float g_ScreenRatio = 1024.0f / 768.0f;
 bool g_LeftMouseButtonPressed = false;
-float g_MovementSpeed = 0.05f;
 float g_MouseSensitivity = 0.005f;
 double g_LastCursorPosX, g_LastCursorPosY;
+
+double g_LastFrameTime = 0.0;
+double g_CurrentFrameTime = 0.0;
+float g_DeltaTime = 0.0f;
 
 // Variáveis que definem um programa de GPU (shaders). Veja função LoadShadersFromFiles().
 GLuint g_GpuProgramID = 0;
@@ -118,7 +121,6 @@ int main() {
 
 	// ==================================================
 	// MARK: Carrega os objetos
-	//
 	// ==================================================
 
 	ObjModel mapModel("../../assets/models/map.obj");
@@ -146,12 +148,18 @@ int main() {
 	glUniform1i(texture1_uniform, 1);
 	glUniform1i(texture2_uniform, 2);
 
+	// Configura a instância do NetGuard
+	g_NetGuard.configure(window);
+
 	// ==================================================
 	// MARK: Loop Principal
 	// O loop principal do programa começa aqui.
 	// ==================================================
-
+	g_LastFrameTime = glfwGetTime();
 	while (!glfwWindowShouldClose(window)) {
+		g_CurrentFrameTime = glfwGetTime();
+		g_DeltaTime = (float)(g_CurrentFrameTime - g_LastFrameTime);
+		g_LastFrameTime = g_CurrentFrameTime;
 
 		glClearColor(39 / 255.0f, 37 / 255.0f, 38 / 255.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -168,7 +176,7 @@ int main() {
 		// MARK: Atualiza e desenha o jogo
 		// ==================================================
 
-		g_NetGuard.update(0.016f); // Atualiza o estado do jogo a cada frame (60 FPS)
+		g_NetGuard.update(g_DeltaTime); // Use actual delta time instead of fixed 0.016f
 		g_NetGuard.draw();         // Desenha o estado atual do jogo
 
 		g_VirtualScene["map"].scale = glm::vec3(1.0f, 1.0f, 1.0f);
