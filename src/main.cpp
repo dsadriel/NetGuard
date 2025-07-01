@@ -5,7 +5,7 @@
 #include <map>
 
 #include <external/glad/glad.h>   
-#include <GLFW/glfw3.h> 
+#include <external/GLFW/glfw3.h> 
 #include <external/glm/gtc/type_ptr.hpp>
 
 #include "shader_loader.hpp"
