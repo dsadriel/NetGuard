@@ -8,6 +8,7 @@ in vec4 position_world;
 in vec4 normal;
 
 in vec2 texture_coordinates;
+in vec4 model_coordinates;
 
 // Matrizes computadas no código C++ e enviadas para a GPU
 uniform mat4 model;
@@ -15,8 +16,10 @@ uniform mat4 view;
 uniform mat4 projection;
 
 // Identificador que define qual o estilo do objeto
-#define PLAIN_COLOR 0
-#define TEXTURED 1
+#define PLAIN_COLOR 0x00
+#define TEXTURED 0x10
+#define MTL_TEXTURE 0x11
+#define FLAT_TEXTURED 0x12
 uniform int object_style;
 
 // Identificador que define a cor do objeto, caso seja o estilo de color
@@ -63,7 +66,7 @@ void main()
     vec3 Ka=vec3(0.,0.,0.);;// Refletância ambiente
     float q=20.;// Expoente especular para o modelo de iluminação de Phong
     
-    if(object_style==TEXTURED)
+    if(object_style==MTL_TEXTURE)
     {
         // Coordenadas de textura U e V
         float U = texture_coordinates.x;
@@ -71,8 +74,15 @@ void main()
         
         Kd=texture(TextureImage0,vec2(U,V)).rgb;
         Ka=Kd/2;
-    }
-    else if(object_style==PLAIN_COLOR)
+    } else if (object_style==FLAT_TEXTURED)
+    {
+        // Coordenadas de textura U e V
+        float U = abs(mod(model_coordinates.x, 1));
+        float V = abs(mod(model_coordinates.z, 1));
+        
+        Kd=texture(TextureImage0,vec2(U,V)).rgb;
+        Ka=Kd/10;
+    } else if(object_style==PLAIN_COLOR)
     {
         Kd=object_color.rgb;
         Ka=Kd/2;

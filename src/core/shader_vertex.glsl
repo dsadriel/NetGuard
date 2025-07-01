@@ -18,6 +18,7 @@ uniform mat4 projection;
 out vec4 position_world;
 out vec4 normal;
 out vec2 texture_coordinates;
+out vec4 model_coordinates;
 
 void main()
 {
@@ -47,6 +48,7 @@ void main()
     //
 
     texture_coordinates = texture_coefficients;
+    model_coordinates = model_coefficients;
 
     // Agora definimos outros atributos dos vértices que serão interpolados pelo
     // rasterizador para gerar atributos únicos para cada fragmento gerado.

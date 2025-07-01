@@ -8,8 +8,10 @@
 #include "matrices.hpp"
 #include "utils/texture_utils.hpp"
 
-#define PLAIN_COLOR 0
-#define TEXTURED 1
+#define PLAIN_COLOR 0x00
+#define TEXTURED 0x10
+#define MTL_TEXTURED 0x11
+#define FLAT_TEXTURED 0x12
 
 using namespace std;
 using namespace glm;
@@ -47,7 +49,7 @@ struct SceneObject {
         glUniform4fv(object_color_uniform, 1, value_ptr(color));
 
 		// Se o objeto tem textura, ativa a textura
-		if (object_style == TEXTURED && texture_id != 0) {
+		if ((object_style & TEXTURED) && texture_id != 0) {
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, texture_id);
 		}
@@ -60,7 +62,7 @@ struct SceneObject {
 
 	void applyTexture(const char *filename) {
 		texture_id = LoadTextureImage(filename);
-		object_style = TEXTURED;
+		object_style = MTL_TEXTURED;
 	}
 };
 
