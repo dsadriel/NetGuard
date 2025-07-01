@@ -134,6 +134,19 @@ int main() {
 	BuildTrianglesAndAddToVirtualScene(&thePlaneModel);
 
 	// ==================================================
+	// MARK: Carrega texturas
+	// ==================================================
+	
+	// Carrega a textura do neocat
+	g_VirtualScene["neocat"].applyTexture("../../assets/models/neocat/neocat.png");
+
+	// Configura os uniforms das texturas
+	glUseProgram(g_GpuProgramID);
+	glUniform1i(texture0_uniform, 0);
+	glUniform1i(texture1_uniform, 1);
+	glUniform1i(texture2_uniform, 2);
+
+	// ==================================================
 	// MARK: Loop Principal
 	// O loop principal do programa começa aqui.
 	// ==================================================

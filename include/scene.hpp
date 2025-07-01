@@ -24,7 +24,7 @@ struct SceneObject {
 	                               // BuildTrianglesAndAddToVirtualScene()
 	GLenum rendering_mode;         // Modo de rasterização (GL_TRIANGLES, GL_TRIANGLE_STRIP, etc.)
 	GLuint vertex_array_object_id; // ID do VAO onde estão armazenados os atributos do modelo
-	GLuint texture_id;             //
+	GLuint texture_id = 0;             // ID da textura
 	GLuint object_style = PLAIN_COLOR;
 	vec4 color = vec4(.3f, .5f, .3f, 1.0f);
 
@@ -45,6 +45,12 @@ struct SceneObject {
 		glUniform1i(object_style_uniform, object_style);
 
         glUniform4fv(object_color_uniform, 1, value_ptr(color));
+
+		// Se o objeto tem textura, ativa a textura
+		if (object_style == TEXTURED && texture_id != 0) {
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, texture_id);
+		}
 
 		// Renderização
 		glBindVertexArray(vertex_array_object_id);

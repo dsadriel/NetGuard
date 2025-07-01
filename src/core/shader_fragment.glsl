@@ -66,8 +66,8 @@ void main()
     if(object_style==TEXTURED)
     {
         // Coordenadas de textura U e V
-        float U=0.;
-        float V=0.;
+        float U = texture_coordinates.x;
+        float V = texture_coordinates.y;
         
         Kd=texture(TextureImage0,vec2(U,V)).rgb;
         Ka=Kd/2;

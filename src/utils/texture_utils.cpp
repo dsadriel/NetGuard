@@ -51,5 +51,5 @@ GLuint LoadTextureImage(const char *filename) {
 
 	NumLoadedTextures += 1;
 
-    return NumLoadedTextures;
+    return texture_id;
 }
