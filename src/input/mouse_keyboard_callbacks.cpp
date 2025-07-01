@@ -56,26 +56,8 @@ void CursorPosCallback(GLFWwindow *window, double xpos, double ypos) {
 // Veja http://www.glfw.org/docs/latest/input_guide.html#input_key
 void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mod) {
 
-	if (action == GLFW_PRESS || action == GLFW_REPEAT) {
+	if (action == GLFW_PRESS) {
 		switch (key) {
-		case GLFW_KEY_W:
-			g_NetGuard.camera.move(CameraMovement::Forward, g_MovementSpeed);
-			break;
-		case GLFW_KEY_S:
-			g_NetGuard.camera.move(CameraMovement::Backward, g_MovementSpeed);
-			break;
-		case GLFW_KEY_A:
-			g_NetGuard.camera.move(CameraMovement::Left, g_MovementSpeed);
-			break;
-		case GLFW_KEY_D:
-			g_NetGuard.camera.move(CameraMovement::Right, g_MovementSpeed);
-			break;
-		case GLFW_KEY_X:
-			g_NetGuard.camera.move(CameraMovement::Up, g_MovementSpeed);
-			break;
-		case GLFW_KEY_Z:
-			g_NetGuard.camera.move(CameraMovement::Down, g_MovementSpeed);
-			break;
 		case GLFW_KEY_P:
 			g_NetGuard.nexStage();
 			break;

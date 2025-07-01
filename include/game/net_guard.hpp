@@ -31,8 +31,12 @@ class NetGuard {
 	int currentInvasionWave = 0;
 	int playerScore = 0;
 	int playerLives = 3;
-	
+
+	float movementSpeed = 5.0f;
+
 	int selectedUnitType = -1;
+
+	GLFWwindow* window;
 
   public:
 	Camera camera = Camera(glm::vec4(2.0f, 2.0f, 2.0f, 1.0f), -2.4f, -0.5f);
@@ -45,6 +49,10 @@ class NetGuard {
 		currentInvasionWave = 0;
 		playerScore = 0;
 		playerLives = 3;
+	}
+
+	void configure(GLFWwindow* window){
+		this->window = window;
 	}
 
 	NetGuardStage getCurrentStage() const { return currentStage; }
@@ -111,6 +119,7 @@ class NetGuard {
 		case NetGuardStage::invasionPhase:
 			// Handle invasion phase logic
 			camera.mode = CameraMode::Free;
+			handleMovement(deltaTime);
 			break;
 		case NetGuardStage::invasionPhaseCompleted:
 			// Handle invasion phase completed logic
@@ -155,10 +164,26 @@ class NetGuard {
 		}
 	}
 
-
-	void defenseDeploymentUpdate(){
+	void defenseDeploymentUpdate() {
 		camera.position = glm::vec4(0.0f, 5.0f, 0.0f, 1.0f);
 		camera.mode = CameraMode::TopDown;
+	}
+
+	void handleMovement(float deltaTime) {
+		float velocity = movementSpeed * deltaTime;
+
+		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+			camera.move(CameraMovement::Forward, velocity);
+		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+			camera.move(CameraMovement::Backward, velocity);
+		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+			camera.move(CameraMovement::Left, velocity);
+		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+			camera.move(CameraMovement::Right, velocity);
+		if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
+			camera.move(CameraMovement::Up, velocity);
+		if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
+			camera.move(CameraMovement::Down, velocity);
 	}
 };
 

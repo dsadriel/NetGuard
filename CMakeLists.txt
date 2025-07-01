@@ -4,7 +4,9 @@ set(SOURCES
   src/main.cpp
   src/utils/text_rendering.cpp
   src/utils/model_utils.cpp
+  src/utils/texture_utils.cpp
   src/core/glad.c
+  src/utils/stb_image.cpp
   src/core/shader_loader.cpp
   src/input/mouse_keyboard_callbacks.cpp
   src/matrices.cpp

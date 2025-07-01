@@ -5,7 +5,7 @@
 #include <map>
 
 #include <external/glad/glad.h>   
-#include <GLFW/glfw3.h> 
+#include <external/GLFW/glfw3.h> 
 #include <external/glm/gtc/type_ptr.hpp>
 
 #include "shader_loader.hpp"
@@ -29,9 +29,12 @@ NetGuard g_NetGuard = NetGuard();
 map<string, SceneObject> g_VirtualScene;
 float g_ScreenRatio = 1024.0f / 768.0f;
 bool g_LeftMouseButtonPressed = false;
-float g_MovementSpeed = 0.05f;
 float g_MouseSensitivity = 0.005f;
 double g_LastCursorPosX, g_LastCursorPosY;
+
+double g_LastFrameTime = 0.0;
+double g_CurrentFrameTime = 0.0;
+float g_DeltaTime = 0.0f;
 
 // Variáveis que definem um programa de GPU (shaders). Veja função LoadShadersFromFiles().
 GLuint g_GpuProgramID = 0;
@@ -57,9 +60,9 @@ int main() {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	#ifdef __APPLE__
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-	#endif
+#ifdef __APPLE__
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+#endif
 
 	GLFWwindow *window;
 	window = glfwCreateWindow(1024, 768, "NetGuard: In a world of chaos, be the firewall", NULL, NULL);
@@ -95,9 +98,12 @@ int main() {
 	    glGetUniformLocation(g_GpuProgramID, "view"); // Variável da matriz "view" em shader_vertex.glsl
 	GLint projection_uniform =
 	    glGetUniformLocation(g_GpuProgramID, "projection"); // Variável da matriz "projection" em shader_vertex.glsl
-	// GLint render_as_black_uniform =
-	// glGetUniformLocation(g_GpuProgramID, "render_as_black"); // Variável booleana em shader_vertex.glsl
-
+	GLint object_style_uniform = glGetUniformLocation(g_GpuProgramID, "object_style");
+	GLint object_color_uniform = glGetUniformLocation(g_GpuProgramID, "object_color");
+	GLint texture0_uniform = glGetUniformLocation(g_GpuProgramID, "TextureImage0");
+	GLint texture1_uniform = glGetUniformLocation(g_GpuProgramID, "TextureImage1");
+	GLint texture2_uniform = glGetUniformLocation(g_GpuProgramID, "TextureImage2");
+	
 	// Habilitamos o Z-buffer. Veja slides 104-116 do documento Aula_09_Projecoes.pdf.
 	glEnable(GL_DEPTH_TEST);
 
@@ -111,14 +117,12 @@ int main() {
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
 
-
 	TextRendering_Init();
 
 	// ==================================================
 	// MARK: Carrega os objetos
-	//
 	// ==================================================
-	
+
 	ObjModel mapModel("../../assets/models/map.obj");
 	ComputeNormals(&mapModel);
 	BuildTrianglesAndAddToVirtualScene(&mapModel);
@@ -132,11 +136,30 @@ int main() {
 	BuildTrianglesAndAddToVirtualScene(&thePlaneModel);
 
 	// ==================================================
+	// MARK: Carrega texturas
+	// ==================================================
+	
+	// Carrega a textura do neocat
+	g_VirtualScene["neocat"].applyTexture("../../assets/models/neocat/neocat.png");
+
+	// Configura os uniforms das texturas
+	glUseProgram(g_GpuProgramID);
+	glUniform1i(texture0_uniform, 0);
+	glUniform1i(texture1_uniform, 1);
+	glUniform1i(texture2_uniform, 2);
+
+	// Configura a instância do NetGuard
+	g_NetGuard.configure(window);
+
+	// ==================================================
 	// MARK: Loop Principal
 	// O loop principal do programa começa aqui.
 	// ==================================================
-
+	g_LastFrameTime = glfwGetTime();
 	while (!glfwWindowShouldClose(window)) {
+		g_CurrentFrameTime = glfwGetTime();
+		g_DeltaTime = (float)(g_CurrentFrameTime - g_LastFrameTime);
+		g_LastFrameTime = g_CurrentFrameTime;
 
 		glClearColor(39 / 255.0f, 37 / 255.0f, 38 / 255.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -153,19 +176,15 @@ int main() {
 		// MARK: Atualiza e desenha o jogo
 		// ==================================================
 
-		g_NetGuard.update(0.016f); // Atualiza o estado do jogo a cada frame (60 FPS)
-		g_NetGuard.draw(); // Desenha o estado atual do jogo
-
+		g_NetGuard.update(g_DeltaTime); // Use actual delta time instead of fixed 0.016f
+		g_NetGuard.draw();         // Desenha o estado atual do jogo
 
 		g_VirtualScene["map"].scale = glm::vec3(1.0f, 1.0f, 1.0f);
-		g_VirtualScene["map"].drawObject(g_model_uniform, g_object_id_uniform, 0);
-
-		g_VirtualScene["the_plane"].position = glm::vec4(0.0f, 0.5f, 0.0f, 1.0f);
-		g_VirtualScene["the_plane"].drawObject(g_model_uniform, g_object_id_uniform, 1);
+		g_VirtualScene["map"].drawObject(g_model_uniform, object_style_uniform, object_color_uniform);
+		g_VirtualScene["map"].color = vec4(1.0f, 1.0f, 1.0f, 1.0f);
 
 		g_VirtualScene["neocat"].position = glm::vec4(0.0f, 1.5f, 0.0f, 1.0f);
-		g_VirtualScene["neocat"].drawObject(g_model_uniform, g_object_id_uniform, 2);
-
+		g_VirtualScene["neocat"].drawObject(g_model_uniform, object_style_uniform, object_color_uniform);
 
 		glBindVertexArray(0);
 
@@ -182,5 +201,3 @@ int main() {
 
 	return 0;
 }
-
-
