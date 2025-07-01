@@ -77,8 +77,8 @@ void main()
     } else if (object_style==FLAT_TEXTURED)
     {
         // Coordenadas de textura U e V
-        float U = abs(mod(model_coordinates.x, 1));
-        float V = abs(mod(model_coordinates.z, 1));
+        float U = abs(mod(model_coordinates.x/2, 1));
+        float V = abs(mod(model_coordinates.z/2, 1));
         
         Kd=texture(TextureImage0,vec2(U,V)).rgb;
         Ka=Kd/10;
