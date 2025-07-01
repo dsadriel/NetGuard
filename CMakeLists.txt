@@ -1,3 +1,5 @@
+cmake_minimum_required(VERSION 3.10)
+
 set(SOURCES
   src/main.cpp
   src/utils/text_rendering.cpp
@@ -10,10 +12,6 @@ set(SOURCES
   include/tinyObjLoader/tiny_obj_loader.cpp
 )
 
-cmake_minimum_required(VERSION 3.5.0)
-
-project(LAB_FCG VERSION 1.0.0)
-
 set(CMAKE_CXX_STANDARD          11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS        OFF)
@@ -21,8 +19,10 @@ set(CMAKE_CXX_EXTENSIONS        OFF)
 if(WIN32)
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG   "${PROJECT_SOURCE_DIR}/bin/Debug")
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE "${PROJECT_SOURCE_DIR}/bin/Release")
-elseif(UNIX)
+elseif(UNIX AND NOT APPLE)
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin/Linux")
+elseif(APPLE)
+  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin/macOS")
 endif()
 
 if(NOT CMAKE_BUILD_TYPE)
@@ -40,13 +40,13 @@ message(STATUS
 
 set(EXECUTABLE_NAME main)
 
-# Verifica se todos os arquivos fonte estão presentes no diretório
-# atual. Se não estão, avisa sobre CMakeLists mal configurado.
+# Verifies if all source files are present in the current directory.
+# If not, it warns about a misconfigured CMakeLists.
 foreach(source_file IN LISTS SOURCES)
   if(NOT EXISTS ${PROJECT_SOURCE_DIR}/${source_file})
     message(FATAL_ERROR "
-O arquivo ${PROJECT_SOURCE_DIR}/${source_file} não existe.
-Por favor, atualize a lista de arquivos fonte no arquivo CMakeLists.txt.")
+The file ${PROJECT_SOURCE_DIR}/${source_file} does not exist.
+Please, update the source file list in the CMakeLists.txt file.")
     break()
   endif()
 endforeach()
@@ -59,13 +59,13 @@ if(WIN32)
 
   if(MINGW)
 
-    # Aqui tentamos descobrir qual libc do Widows está sendo usada
-    # pelo compilador MinGW: msvcrt (antiga) ou ucrt (nova). Também
-    # diferenciamos entre um compilador 32-bits (antigo) ou 64-bits.
-    # Para isso, buscamos pela ocorrência de algumas strings
-    # específicas no output do comando "-v" do GCC, que lista os
-    # parâmetros de configuração do compilador.
-    # TODO: Testar com compilador llvm/clang.
+    # Here we try to figure out which Windows libc is being used
+    # by the MinGW compiler: msvcrt (old) or ucrt (new). We also
+    # differentiate between a 32-bit (old) or 64-bit compiler.
+    # For this, we search for the occurrence of some specific strings
+    # in the output of the "-v" command of GCC, which lists the
+    # compiler's configuration parameters.
+    # TODO: Test with llvm/clang compiler.
     execute_process(
       COMMAND ${CMAKE_CXX_COMPILER} "-v"
       ERROR_VARIABLE  COMPILER_VERSION_OUTPUT
@@ -73,9 +73,9 @@ if(WIN32)
     )
 
     if (COMPILER_VERSION_RESULT EQUAL 0)
-      # NOTE: É importante que o primeiro teste seja buscando pela
-      # string ucrt64 no output do compilador, pois a string "mingw64"
-      # sempre aparece no output (mesmo quando ucrt64 é a libc utilizada).
+      # NOTE: It is important that the first test is to search for the
+      # ucrt64 string in the compiler output, as the "mingw64"
+      # string always appears in the output (even when ucrt64 is the libc used).
       if (COMPILER_VERSION_OUTPUT MATCHES "ucrt64")
         set(LIBGLFW ${PROJECT_SOURCE_DIR}/lib/lib-ucrt-64/libglfw3.a)
       elseif (COMPILER_VERSION_OUTPUT MATCHES "mingw64")
@@ -96,6 +96,33 @@ if(WIN32)
   message(STATUS "LIBGLFW = ${LIBGLFW}")
 
   target_link_libraries(${EXECUTABLE_NAME} ${LIBGLFW} gdi32 opengl32)
+
+elseif(APPLE)
+
+  # Use find_package to locate the GLFW library automatically.
+  # This is more robust than hardcoding paths.
+  # Ensure you have installed glfw (e.g., via 'brew install glfw')
+  find_package(glfw3 3.3 REQUIRED)
+
+  # For macOS, we need to link against frameworks.
+  # OpenGL is a framework on macOS.
+  find_package(OpenGL REQUIRED)
+
+  # Add custom target for 'run'
+  add_custom_target(run
+      COMMAND ${CMAKE_COMMAND} -E chdir ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} ./main
+      DEPENDS main
+      USES_TERMINAL
+  )
+  
+  target_link_libraries(${EXECUTABLE_NAME}
+    # Link to the glfw target found by find_package
+    glfw
+    ${OPENGL_LIBRARIES}
+    "-framework Cocoa"
+    "-framework IOKit"
+    "-framework CoreFoundation"
+  )
 
 elseif(UNIX)
 
