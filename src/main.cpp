@@ -127,20 +127,26 @@ int main() {
 	ComputeNormals(&mapModel);
 	BuildTrianglesAndAddToVirtualScene(&mapModel);
 
+	ObjModel boardModel("../../assets/models/board.obj");
+	ComputeNormals(&boardModel);
+	BuildTrianglesAndAddToVirtualScene(&boardModel);
+
 	ObjModel neoCatModel("../../assets/models/neocat/neocat.obj");
 	ComputeNormals(&neoCatModel);
 	BuildTrianglesAndAddToVirtualScene(&neoCatModel);
-
-	ObjModel thePlaneModel("../../assets/models/plane.obj");
-	ComputeNormals(&thePlaneModel);
-	BuildTrianglesAndAddToVirtualScene(&thePlaneModel);
 
 	// ==================================================
 	// MARK: Carrega texturas
 	// ==================================================
 	
 	// Carrega a textura do neocat
-	g_VirtualScene["neocat"].applyTexture("../../assets/models/neocat/neocat.png");
+	g_VirtualScene["neocat"].applyTexture("../../assets/textures/neocat.png");
+
+	g_VirtualScene["map"].applyTexture("../../assets/textures/grid.png");
+	g_VirtualScene["map"].object_style = FLAT_TEXTURED;
+
+	g_VirtualScene["board"].applyTexture("../../assets/textures/grid.png");
+	g_VirtualScene["board"].object_style = FLAT_TEXTURED;
 
 	// Configura os uniforms das texturas
 	glUseProgram(g_GpuProgramID);
@@ -179,11 +185,10 @@ int main() {
 		g_NetGuard.update(g_DeltaTime); // Use actual delta time instead of fixed 0.016f
 		g_NetGuard.draw();         // Desenha o estado atual do jogo
 
-		g_VirtualScene["map"].scale = glm::vec3(1.0f, 1.0f, 1.0f);
 		g_VirtualScene["map"].drawObject(g_model_uniform, object_style_uniform, object_color_uniform);
-		g_VirtualScene["map"].color = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+		g_VirtualScene["board"].drawObject(g_model_uniform, object_style_uniform, object_color_uniform);
 
-		g_VirtualScene["neocat"].position = glm::vec4(0.0f, 1.5f, 0.0f, 1.0f);
+		g_VirtualScene["neocat"].position = glm::vec4(0.0f, 3.0f, 0.0f, 1.0f);
 		g_VirtualScene["neocat"].drawObject(g_model_uniform, object_style_uniform, object_color_uniform);
 
 		glBindVertexArray(0);
