@@ -138,6 +138,7 @@ class NetGuard {
 			break;
 		case NetGuardStage::invasionPhase:
 			// Handle invasion phase logic
+			drawDefenseDeploymentScreen(); // REMOVE LATER, JUST FOR TESTING
 			camera.mode = CameraMode::Free;
 			handleMovement(deltaTime);
 			break;
