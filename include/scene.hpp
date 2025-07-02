@@ -1,6 +1,10 @@
 #ifndef _SCENE_HPP
 #define _SCENE_HPP
 
+#ifdef __APPLE__
+#define GL_SILENCE_DEPRECATION
+#endif
+
 #include <external/glad/glad.h>
 #include <external/glm/gtc/type_ptr.hpp>
 #include <string>
