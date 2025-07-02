@@ -165,7 +165,7 @@ int main() {
 	g_NetGuard.board = &g_VirtualScene["board"];
 
 	g_VirtualScene["skybox"].applyTexture("../../assets/textures/skybox.png");
-	g_VirtualScene["skybox"].object_style = SKYBOX_TEXTURED;
+	g_VirtualScene["skybox"].object_style = PLAIN_TEXTURED;
 
 	// Configura os uniforms das texturas
 	glUseProgram(g_GpuProgramID);

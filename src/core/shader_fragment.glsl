@@ -20,7 +20,7 @@ uniform mat4 projection;
 #define TEXTURED 0x10
 #define MTL_TEXTURE 0x11
 #define FLAT_TEXTURED 0x12
-#define SKYBOX_TEXTURED 0x13
+#define PLAIN_TEXTURED 0x13
 uniform int object_style;
 
 // Identificador que define a cor do objeto, caso seja o estilo de color
@@ -85,7 +85,7 @@ void main()
     } else if(object_style==PLAIN_COLOR) {
         Kd=object_color.rgb;
         Ka=Kd/2;
-    } else if(object_style==SKYBOX_TEXTURED) {
+    } else if(object_style==PLAIN_TEXTURED) {
         float U = texture_coordinates.x;
         float V = texture_coordinates.y;
         
