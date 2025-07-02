@@ -1,11 +1,11 @@
 #ifndef GAME_NET_GUARD_HPP
 #define GAME_NET_GUARD_HPP
 
-#include "game/camera.hpp"
-#include "scene.hpp"
 #include "collisions.hpp"
+#include "game/camera.hpp"
 #include "game/defense_unit.hpp"
 #include "game/invasion_unit.hpp"
+#include "scene.hpp"
 #define GLFW_INCLUDE_NONE
 #include <external/GLFW/glfw3.h>
 #include <external/glm/vec4.hpp>
@@ -61,12 +61,12 @@ class NetGuard {
 		playerScore = 0;
 		playerLives = 3;
 	}
-	
+
 	// Game SceneObjects
-	SceneObject* map = nullptr;
-	SceneObject* board = nullptr;
-	SceneObject* cat = nullptr;
-	SceneObject* plane = nullptr;
+	SceneObject *map = nullptr;
+	SceneObject *board = nullptr;
+	SceneObject *cat = nullptr;
+	SceneObject *plane = nullptr;
 
 	void link(GLFWwindow *window, GLint model_uniform, GLint object_style_uniform, GLint object_color_uniform) {
 		this->window = window;
@@ -198,8 +198,8 @@ class NetGuard {
 			camera.mode = CameraMode::LookAt;
 			onboardingUpdateStage++;
 		} else {
-			camera.position.x += camera.position.z/2 * deltaTime;
-			camera.position.z += -camera.position.x/2 * deltaTime;
+			camera.position.x += camera.position.z / 2 * deltaTime;
+			camera.position.z += -camera.position.x / 2 * deltaTime;
 		}
 	}
 
@@ -220,7 +220,35 @@ class NetGuard {
 			camera.move(CameraMovement::Down, velocity);
 	}
 
-	void drawDefenseDeploymentScreen(){}
+	void drawDefenseDeploymentScreen() {
+		double cursorX, cursorY;
+		glfwGetCursorPos(window, &cursorX, &cursorY);
+		Ray pickingRay = camera.getPickingRay(1024.0f, 768.0f, cursorX, cursorY);
+
+		plane->scale = vec4(.9f, .9f, .9f, .9f);
+		for (int x = -6; x <= 5; x++) {
+			for (int z = -6; z <= 5; z++) {
+				float centerX = x + 0.5f;
+				float centerZ = z + 0.5f;
+
+				plane->position = vec4(centerX, 1.01f, centerZ, 1.0f);
+
+				Plane planeAbs =
+				    Plane(vec4(centerX - 0.5f * plane->scale.x, 1.0f, centerZ - 0.5f * plane->scale.z, 1.0f),
+				          vec4(centerX - 0.5f * plane->scale.x, 1.0f, centerZ + 0.5f * plane->scale.z, 1.0f),
+				          vec4(centerX + 0.5f * plane->scale.x, 1.0f, centerZ + 0.5f * plane->scale.z, 1.0f),
+				          vec4(centerX + 0.5f * plane->scale.x, 1.0f, centerZ - 0.5f * plane->scale.z, 1.0f));
+
+				if (checkCollision(pickingRay, planeAbs)) {
+					plane->color = vec4(0.2f, 0.8f, 0.2f, 1.0f);
+				} else {
+					plane->color = vec4(0.05f, 0.05f, 0.05f, 1.0f);
+				}
+
+				plane->drawObject(model_uniform, object_style_uniform, object_color_uniform);
+			}
+		}
+	}
 };
 
 #endif // GAME_NET_GUARD_HPP
