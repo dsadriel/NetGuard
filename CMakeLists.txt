@@ -1,7 +1,10 @@
 cmake_minimum_required(VERSION 3.10)
 
+project(NetGuard)
+
 set(SOURCES
   src/main.cpp
+  src/collisions.cpp
   src/utils/text_rendering.cpp
   src/utils/model_utils.cpp
   src/utils/texture_utils.cpp
