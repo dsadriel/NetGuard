@@ -103,6 +103,33 @@ class Camera {
 		updateViewVector();
 	}
 
+	void handleMouseMovement(double xpos, double ypos, bool isPressed = false) {
+		static double lastX = 0.0, lastY = 0.0;
+		static bool firstMouse = true;
+		float sensitivity = 0.005f;
+
+		if (firstMouse) {
+			lastX = xpos;
+			lastY = ypos;
+			firstMouse = false;
+		}
+
+		double xoffset = lastX - xpos;
+		double yoffset = lastY - ypos;
+		lastX = xpos;
+		lastY = ypos;
+
+		if (!isPressed) {
+			return; 
+		}
+
+		xoffset *= sensitivity;
+		yoffset *= sensitivity;
+
+		changeYaw(xoffset);
+		changePitch(yoffset);
+	}
+
 	Ray getPickingRay(float screen_width, float screen_height, float cursor_pos_x, float cursor_pos_y) {
 		float x_ndc = (2.0f * cursor_pos_x) / screen_width - 1.0f;
 		float y_ndc = 1.0f - (2.0f * cursor_pos_y) / screen_height;
