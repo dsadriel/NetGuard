@@ -148,6 +148,12 @@ int main() {
 	ComputeNormals(&skyBoxModel);
 	BuildTrianglesAndAddToVirtualScene(&skyBoxModel);
 
+	ObjModel antivirusModel("../../assets/models/antivirus/antivirus.obj");
+	ComputeNormals(&antivirusModel);
+	BuildTrianglesAndAddToVirtualScene(&antivirusModel);
+	g_NetGuard.antivirusSceneObject = &g_VirtualScene["antivirus"];
+
+
 	// ==================================================
 	// MARK: Carrega texturas
 	// ==================================================
@@ -163,9 +169,6 @@ int main() {
 	g_VirtualScene["board"].object_style = FLAT_TEXTURED;
 	g_VirtualScene["board"].scale = glm::vec3(0.5f, 0.5f, 0.5f);
 	g_NetGuard.board = &g_VirtualScene["board"];
-
-	g_VirtualScene["skybox"].applyTexture("../../assets/textures/skybox.png");
-	g_VirtualScene["skybox"].object_style = PLAIN_TEXTURED;
 
 	// Configura os uniforms das texturas
 	glUseProgram(g_GpuProgramID);
@@ -211,12 +214,6 @@ int main() {
 		g_NetGuard.update(g_DeltaTime); // Use actual delta time instead of fixed 0.016f
 
 		g_NetGuard.draw();
-		
-
-		// g_VirtualScene["plane1x1"].scale = glm::vec3(0.9f, 1.0f, 0.9f);
-		// g_VirtualScene["plane1x1"].position = glm::vec4(0.0f, 1.01f, 0.0f, 1.0f);
-
-		// g_VirtualScene["neocat"].drawObject(g_model_uniform, object_style_uniform, object_color_uniform);
 
 		glBindVertexArray(0);
 
