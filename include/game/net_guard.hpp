@@ -49,6 +49,11 @@ class NetGuard {
 	GLint object_style_uniform;
 	GLint object_color_uniform;
 
+	bool isLeftMouseButtonPressed = false;
+
+	vec2 selectedPosition = vec2(-INFINITY, -INFINITY);
+	
+	const int gridHeight = 1.0f; 
   public:
 	Camera camera = Camera(vec4(2.0f, 2.0f, 2.0f, 1.0f), -2.4f, -0.5f);
 
@@ -67,6 +72,7 @@ class NetGuard {
 	SceneObject *board = nullptr;
 	SceneObject *cat = nullptr;
 	SceneObject *plane = nullptr;
+	SceneObject *antivirusSceneObject = nullptr;
 
 	void link(GLFWwindow *window, GLint model_uniform, GLint object_style_uniform, GLint object_color_uniform) {
 		this->window = window;
@@ -138,7 +144,6 @@ class NetGuard {
 			break;
 		case NetGuardStage::invasionPhase:
 			// Handle invasion phase logic
-			drawDefenseDeploymentScreen(); // REMOVE LATER, JUST FOR TESTING
 			camera.mode = CameraMode::Free;
 			handleMovement(deltaTime);
 			break;
@@ -159,9 +164,16 @@ class NetGuard {
 
 	// MARK: Draw
 	void draw() {
-
 		map->drawObject(model_uniform, object_style_uniform, object_color_uniform);
 		board->drawObject(model_uniform, object_style_uniform, object_color_uniform);
+
+		for (auto &defenseUnit : defenseUnits) {
+			if (defenseUnit.sceneObject != nullptr) {
+				defenseUnit.sceneObject->position = defenseUnit.getPosition();
+				defenseUnit.sceneObject->drawObject(model_uniform, object_style_uniform, object_color_uniform);
+			}
+		}
+
 		switch (currentStage) {
 		case NetGuardStage::onboarding:
 			// Draw onboarding screen
@@ -190,6 +202,32 @@ class NetGuard {
 	void defenseDeploymentUpdate() {
 		camera.position = vec4(0.0f, 20.0f, 0.0f, 1.0f);
 		camera.mode = CameraMode::TopDown;
+		
+		// Handle grid selection logic
+		double cursorX, cursorY;
+		glfwGetCursorPos(window, &cursorX, &cursorY);
+		Ray pickingRay = camera.getPickingRay(1024.0f, 768.0f, cursorX, cursorY);
+
+		// Check collision for each grid cell
+		for (int x = -6; x <= 5; x++) {
+			for (int z = -6; z <= 5; z++) {
+				float centerX = x + 0.5f;
+				float centerZ = z + 0.5f;
+				
+				float scaleX = 0.9f;
+				float scaleZ = 0.9f;
+
+				Plane planeAbs =
+				    Plane(vec4(centerX - 0.5f * scaleX, 1.0f, centerZ - 0.5f * scaleZ, 1.0f),
+				          vec4(centerX - 0.5f * scaleX, 1.0f, centerZ + 0.5f * scaleZ, 1.0f),
+				          vec4(centerX + 0.5f * scaleX, 1.0f, centerZ + 0.5f * scaleZ, 1.0f),
+				          vec4(centerX + 0.5f * scaleX, 1.0f, centerZ - 0.5f * scaleZ, 1.0f));
+
+				if (checkCollision(pickingRay, planeAbs)) {
+					selectedPosition = vec2(centerX, centerZ);
+				}
+			}
+		}
 	}
 
 	void onboardingUpdate(float deltaTime, int &onboardingUpdateStage) {
@@ -221,29 +259,40 @@ class NetGuard {
 			camera.move(CameraMovement::Down, velocity);
 	}
 
-	void drawDefenseDeploymentScreen() {
-		double cursorX, cursorY;
-		glfwGetCursorPos(window, &cursorX, &cursorY);
-		Ray pickingRay = camera.getPickingRay(1024.0f, 768.0f, cursorX, cursorY);
+	void handleMouseMovement(GLFWwindow* window, double xpos, double ypos) {
+		camera.handleMouseMovement(xpos, ypos, isLeftMouseButtonPressed);
+	}
 
+	void handleMouseClick(GLFWwindow *window, int button, int action, int mods) {
+		if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+			isLeftMouseButtonPressed = true;
+			
+			if (currentStage == NetGuardStage::defenseDeployment) {
+				AntiVirusUnit newUnit(vec4(selectedPosition.x, gridHeight + 0.5f, selectedPosition.y, 1.0f), vec4(0.0f, 1.0f, 0.0f, 1.0f));
+
+				newUnit.sceneObject = antivirusSceneObject;
+				defenseUnits.push_back(newUnit);
+			}
+		}
+
+		if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
+			isLeftMouseButtonPressed = false;
+		}
+	}
+
+	void drawDefenseDeploymentScreen() {
 		plane->scale = vec4(.9f, .9f, .9f, .9f);
 		for (int x = -6; x <= 5; x++) {
 			for (int z = -6; z <= 5; z++) {
 				float centerX = x + 0.5f;
 				float centerZ = z + 0.5f;
 
-				plane->position = vec4(centerX, 1.01f, centerZ, 1.0f);
+				plane->position = vec4(centerX, gridHeight + 0.01f, centerZ, 1.0f);
 
-				Plane planeAbs =
-				    Plane(vec4(centerX - 0.5f * plane->scale.x, 1.0f, centerZ - 0.5f * plane->scale.z, 1.0f),
-				          vec4(centerX - 0.5f * plane->scale.x, 1.0f, centerZ + 0.5f * plane->scale.z, 1.0f),
-				          vec4(centerX + 0.5f * plane->scale.x, 1.0f, centerZ + 0.5f * plane->scale.z, 1.0f),
-				          vec4(centerX + 0.5f * plane->scale.x, 1.0f, centerZ - 0.5f * plane->scale.z, 1.0f));
-
-				if (checkCollision(pickingRay, planeAbs)) {
-					plane->color = vec4(0.2f, 0.8f, 0.2f, 1.0f);
+				if (centerX == selectedPosition.x && centerZ == selectedPosition.y) {
+					plane->color = vec4(0.3f, 0.5f, 0.3f, 1.0f); // Highlighted color
 				} else {
-					plane->color = vec4(0.05f, 0.05f, 0.05f, 1.0f);
+					plane->color = vec4(0.05f, 0.05f, 0.05f, 1.0f); // Default color
 				}
 
 				plane->drawObject(model_uniform, object_style_uniform, object_color_uniform);
