@@ -20,6 +20,7 @@ uniform mat4 projection;
 #define TEXTURED 0x10
 #define MTL_TEXTURE 0x11
 #define FLAT_TEXTURED 0x12
+#define SKYBOX_TEXTURED 0x13
 uniform int object_style;
 
 // Identificador que define a cor do objeto, caso seja o estilo de color
@@ -74,22 +75,29 @@ void main()
         
         Kd=texture(TextureImage0,vec2(U,V)).rgb;
         Ka=Kd/2;
-    } else if (object_style==FLAT_TEXTURED)
-    {
+    } else if (object_style==FLAT_TEXTURED) {
         // Coordenadas de textura U e V
-        float U = abs(mod(model_coordinates.x/2, 1));
-        float V = abs(mod(model_coordinates.z/2, 1));
+        float U = fract(model_coordinates.x / 2.0);
+        float V = fract(model_coordinates.z / 2.0);
         
         Kd=texture(TextureImage0,vec2(U,V)).rgb;
         Ka=Kd/10;
-    } else if(object_style==PLAIN_COLOR)
-    {
+    } else if(object_style==PLAIN_COLOR) {
         Kd=object_color.rgb;
         Ka=Kd/2;
-    }
+    } else if(object_style==SKYBOX_TEXTURED) {
+        float U = texture_coordinates.x;
+        float V = texture_coordinates.y;
+        
+        color = texture(TextureImage0, vec2(U, V));
+        color.rgb = pow(color.rgb, vec3(1., 1., 1.) / 2.2);
+        return; // Retorna imediatamente sem calcular iluminação
+    } 
+
     
     // Espectro da fonte de iluminação
     vec3 I=vec3(1.,1.,1.);
+
     // Espectro da luz ambiente
     vec3 Ia=vec3(.2,.2,.2);
     

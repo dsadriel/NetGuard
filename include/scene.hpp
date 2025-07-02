@@ -16,6 +16,7 @@
 #define TEXTURED 0x10
 #define MTL_TEXTURED 0x11
 #define FLAT_TEXTURED 0x12
+#define SKYBOX_TEXTURED 0x13
 
 using namespace std;
 using namespace glm;
