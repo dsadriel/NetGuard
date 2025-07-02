@@ -144,6 +144,10 @@ int main() {
 	BuildTrianglesAndAddToVirtualScene(&plane1x1Model);
 	g_NetGuard.plane = &g_VirtualScene["plane1x1"];
 
+	ObjModel skyBoxModel("../../assets/models/skybox.obj");
+	ComputeNormals(&skyBoxModel);
+	BuildTrianglesAndAddToVirtualScene(&skyBoxModel);
+
 	// ==================================================
 	// MARK: Carrega texturas
 	// ==================================================
@@ -159,6 +163,9 @@ int main() {
 	g_VirtualScene["board"].object_style = FLAT_TEXTURED;
 	g_VirtualScene["board"].scale = glm::vec3(0.5f, 0.5f, 0.5f);
 	g_NetGuard.board = &g_VirtualScene["board"];
+
+	g_VirtualScene["skybox"].applyTexture("../../assets/textures/skybox.png");
+	g_VirtualScene["skybox"].object_style = SKYBOX_TEXTURED;
 
 	// Configura os uniforms das texturas
 	glUseProgram(g_GpuProgramID);
@@ -193,6 +200,13 @@ int main() {
 		// ==================================================
 		// MARK: Atualiza e desenha o jogo
 		// ==================================================
+
+		// Desenha o skybox primeiro (sempre atrás de tudo)
+		glDepthMask(GL_FALSE); // Não escreve no depth buffer
+		g_VirtualScene["skybox"].position = glm::vec4(g_NetGuard.camera.position.x, g_NetGuard.camera.position.y, g_NetGuard.camera.position.z, 1.0f);
+		g_VirtualScene["skybox"].drawObject(g_model_uniform, object_style_uniform, object_color_uniform);
+		glDepthMask(GL_TRUE); // Volta a escrever no depth buffer
+
 
 		g_NetGuard.update(g_DeltaTime); // Use actual delta time instead of fixed 0.016f
 
