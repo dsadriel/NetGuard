@@ -2,37 +2,13 @@
 
 // Função callback chamada sempre que o usuário aperta algum dos botões do mouse
 void MouseButtonCallback(GLFWwindow *window, int button, int action, int mods) {
-	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
-		// Se o usuário pressionou o botão esquerdo do mouse, guardamos a
-		// posição atual do cursor nas variáveis g_LastCursorPosX e
-		// g_LastCursorPosY.  Também, setamos a variável
-		// g_LeftMouseButtonPressed como true, para saber que o usuário está
-		// com o botão esquerdo pressionado.
-		glfwGetCursorPos(window, &g_LastCursorPosX, &g_LastCursorPosY);
-		g_LeftMouseButtonPressed = true;
-	}
-	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
-		// Quando o usuário soltar o botão esquerdo do mouse, atualizamos a
-		// variável abaixo para false.
-		g_LeftMouseButtonPressed = false;
-	}
+	g_NetGuard.handleMouseClick(window, button, action, mods);
 }
 
 // Função callback chamada sempre que o usuário movimentar o cursor do mouse em
 // cima da janela OpenGL.
 void CursorPosCallback(GLFWwindow *window, double xpos, double ypos) {
-	if (!g_LeftMouseButtonPressed)
-		return;
-
-	float dx = xpos - g_LastCursorPosX;
-	float dy = ypos - g_LastCursorPosY;
-
-	// Atualiza o ângulo de visão da câmera utilizando a movimentação do mouse.
-	g_NetGuard.camera.changeYaw(-dx * g_MouseSensitivity);
-	g_NetGuard.camera.changePitch(-dy * g_MouseSensitivity);
-
-	g_LastCursorPosX = xpos;
-	g_LastCursorPosY = ypos;
+	g_NetGuard.handleMouseMovement(window, xpos, ypos);
 }
 
 // Função callback chamada sempre que o usuário movimenta a "rodinha" do mouse.
