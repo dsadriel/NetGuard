@@ -1,6 +1,7 @@
 #ifndef _MOUSE_KEYBOARD_HPP
 #define _MOUSE_KEYBOARD_HPP
 
+#define GLFW_INCLUDE_NONE
 #include <external/GLFW/glfw3.h>
 #include "game/net_guard.hpp"
 
