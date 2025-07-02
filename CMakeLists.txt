@@ -5,6 +5,7 @@ project(NetGuard)
 set(SOURCES
   src/main.cpp
   src/collisions.cpp
+  src/game/defense_unit.cpp
   src/utils/text_rendering.cpp
   src/utils/model_utils.cpp
   src/utils/texture_utils.cpp
