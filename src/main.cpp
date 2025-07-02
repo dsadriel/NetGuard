@@ -5,6 +5,7 @@
 #include <map>
 
 #include <external/glad/glad.h>   
+#define GLFW_INCLUDE_NONE
 #include <external/GLFW/glfw3.h> 
 #include <external/glm/gtc/type_ptr.hpp>
 
@@ -103,7 +104,7 @@ int main() {
 	GLint texture0_uniform = glGetUniformLocation(g_GpuProgramID, "TextureImage0");
 	GLint texture1_uniform = glGetUniformLocation(g_GpuProgramID, "TextureImage1");
 	GLint texture2_uniform = glGetUniformLocation(g_GpuProgramID, "TextureImage2");
-	
+
 	// Habilitamos o Z-buffer. Veja slides 104-116 do documento Aula_09_Projecoes.pdf.
 	glEnable(GL_DEPTH_TEST);
 
@@ -126,27 +127,38 @@ int main() {
 	ObjModel mapModel("../../assets/models/map.obj");
 	ComputeNormals(&mapModel);
 	BuildTrianglesAndAddToVirtualScene(&mapModel);
+	g_NetGuard.map = &g_VirtualScene["map"];
 
 	ObjModel boardModel("../../assets/models/board.obj");
 	ComputeNormals(&boardModel);
 	BuildTrianglesAndAddToVirtualScene(&boardModel);
+	g_NetGuard.board = &g_VirtualScene["board"];
 
 	ObjModel neoCatModel("../../assets/models/neocat/neocat.obj");
 	ComputeNormals(&neoCatModel);
 	BuildTrianglesAndAddToVirtualScene(&neoCatModel);
+	g_NetGuard.cat = &g_VirtualScene["neocat"];
+
+	ObjModel plane1x1Model("../../assets/models/plane1x1.obj");
+	ComputeNormals(&plane1x1Model);
+	BuildTrianglesAndAddToVirtualScene(&plane1x1Model);
+	g_NetGuard.plane = &g_VirtualScene["plane1x1"];
 
 	// ==================================================
 	// MARK: Carrega texturas
 	// ==================================================
-	
+
 	// Carrega a textura do neocat
 	g_VirtualScene["neocat"].applyTexture("../../assets/textures/neocat.png");
 
 	g_VirtualScene["map"].applyTexture("../../assets/textures/grid.png");
 	g_VirtualScene["map"].object_style = FLAT_TEXTURED;
+	g_VirtualScene["map"].scale = glm::vec3(0.5f, 0.5f, 0.5f);
 
 	g_VirtualScene["board"].applyTexture("../../assets/textures/grid.png");
 	g_VirtualScene["board"].object_style = FLAT_TEXTURED;
+	g_VirtualScene["board"].scale = glm::vec3(0.5f, 0.5f, 0.5f);
+	g_NetGuard.board = &g_VirtualScene["board"];
 
 	// Configura os uniforms das texturas
 	glUseProgram(g_GpuProgramID);
@@ -155,7 +167,7 @@ int main() {
 	glUniform1i(texture2_uniform, 2);
 
 	// Configura a instância do NetGuard
-	g_NetGuard.configure(window);
+	g_NetGuard.link(window, g_model_uniform, object_style_uniform, object_color_uniform);
 
 	// ==================================================
 	// MARK: Loop Principal
@@ -183,13 +195,14 @@ int main() {
 		// ==================================================
 
 		g_NetGuard.update(g_DeltaTime); // Use actual delta time instead of fixed 0.016f
-		g_NetGuard.draw();         // Desenha o estado atual do jogo
 
-		g_VirtualScene["map"].drawObject(g_model_uniform, object_style_uniform, object_color_uniform);
-		g_VirtualScene["board"].drawObject(g_model_uniform, object_style_uniform, object_color_uniform);
+		g_NetGuard.draw();
+		
 
-		g_VirtualScene["neocat"].position = glm::vec4(0.0f, 3.0f, 0.0f, 1.0f);
-		g_VirtualScene["neocat"].drawObject(g_model_uniform, object_style_uniform, object_color_uniform);
+		// g_VirtualScene["plane1x1"].scale = glm::vec3(0.9f, 1.0f, 0.9f);
+		// g_VirtualScene["plane1x1"].position = glm::vec4(0.0f, 1.01f, 0.0f, 1.0f);
+
+		// g_VirtualScene["neocat"].drawObject(g_model_uniform, object_style_uniform, object_color_uniform);
 
 		glBindVertexArray(0);
 

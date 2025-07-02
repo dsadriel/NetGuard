@@ -2,12 +2,18 @@
 #define GAME_NET_GUARD_HPP
 
 #include "game/camera.hpp"
+#include "scene.hpp"
+#include "collisions.hpp"
 #include "game/defense_unit.hpp"
 #include "game/invasion_unit.hpp"
+#define GLFW_INCLUDE_NONE
 #include <external/GLFW/glfw3.h>
 #include <external/glm/vec4.hpp>
 #include <string>
 #include <vector>
+
+using namespace glm;
+using namespace std;
 
 enum class NetGuardStage {
 	onboarding,
@@ -24,9 +30,9 @@ class NetGuard {
 	NetGuardStage currentStage;
 
 	// List of defense units
-	std::vector<DefenseUnit> defenseUnits;
+	vector<DefenseUnit> defenseUnits;
 	// List of invasion units
-	std::vector<InvasionUnit> invasionUnits;
+	vector<InvasionUnit> invasionUnits;
 
 	// Game state variables
 	int currentInvasionWave = 0;
@@ -37,10 +43,14 @@ class NetGuard {
 
 	int selectedUnitType = -1;
 
+	// GLFW references
 	GLFWwindow *window;
+	GLint model_uniform;
+	GLint object_style_uniform;
+	GLint object_color_uniform;
 
   public:
-	Camera camera = Camera(glm::vec4(2.0f, 2.0f, 2.0f, 1.0f), -2.4f, -0.5f);
+	Camera camera = Camera(vec4(2.0f, 2.0f, 2.0f, 1.0f), -2.4f, -0.5f);
 
 	// MARK: Initialization
 	NetGuard() {
@@ -51,12 +61,23 @@ class NetGuard {
 		playerScore = 0;
 		playerLives = 3;
 	}
+	
+	// Game SceneObjects
+	SceneObject* map = nullptr;
+	SceneObject* board = nullptr;
+	SceneObject* cat = nullptr;
+	SceneObject* plane = nullptr;
 
-	void configure(GLFWwindow *window) { this->window = window; }
+	void link(GLFWwindow *window, GLint model_uniform, GLint object_style_uniform, GLint object_color_uniform) {
+		this->window = window;
+		this->model_uniform = model_uniform;
+		this->object_style_uniform = object_style_uniform;
+		this->object_color_uniform = object_color_uniform;
+	}
 
 	NetGuardStage getCurrentStage() const { return currentStage; }
 
-	std::string getCurrentStageString() const {
+	string getCurrentStageString() const {
 		switch (currentStage) {
 		case NetGuardStage::onboarding:
 			return "onboarding";
@@ -104,12 +125,14 @@ class NetGuard {
 	// MARK: Game loop
 
 	void update(float deltaTime) {
+		static int onboardingUpdateStage = 0;
 		// Update game logic based on the current stage
 		switch (currentStage) {
 		case NetGuardStage::onboarding:
-			onboardingUpdate(deltaTime);
+			onboardingUpdate(deltaTime, onboardingUpdateStage);
 			break;
 		case NetGuardStage::defenseDeployment:
+			onboardingUpdateStage = 0; // Reset onboarding stage
 			// Handle adding defense units logic
 			defenseDeploymentUpdate();
 			break;
@@ -135,13 +158,15 @@ class NetGuard {
 
 	// MARK: Draw
 	void draw() {
-		// Draw the current stage
+
+		map->drawObject(model_uniform, object_style_uniform, object_color_uniform);
+		board->drawObject(model_uniform, object_style_uniform, object_color_uniform);
 		switch (currentStage) {
 		case NetGuardStage::onboarding:
 			// Draw onboarding screen
 			break;
 		case NetGuardStage::defenseDeployment:
-			// Draw defense units screen
+			drawDefenseDeploymentScreen();
 			break;
 		case NetGuardStage::invasionPhase:
 			// Draw invasion phase screen
@@ -162,16 +187,14 @@ class NetGuard {
 	}
 
 	void defenseDeploymentUpdate() {
-		camera.position = glm::vec4(0.0f, 40.0f, 0.0f, 1.0f);
+		camera.position = vec4(0.0f, 20.0f, 0.0f, 1.0f);
 		camera.mode = CameraMode::TopDown;
 	}
 
-	void onboardingUpdate(float deltaTime) {
-		static int onboardingUpdateStage = 0;
-
+	void onboardingUpdate(float deltaTime, int &onboardingUpdateStage) {
 		if (onboardingUpdateStage == 0) {
-			camera.target = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-			camera.position = glm::vec4(20.0f, 30.0f, 20.0f, 1.0f);
+			camera.target = vec4(0.0f, 0.0f, 0.0f, 1.0f);
+			camera.position = vec4(20.0f, 30.0f, 20.0f, 1.0f);
 			camera.mode = CameraMode::LookAt;
 			onboardingUpdateStage++;
 		} else {
@@ -196,6 +219,8 @@ class NetGuard {
 		if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
 			camera.move(CameraMovement::Down, velocity);
 	}
+
+	void drawDefenseDeploymentScreen(){}
 };
 
 #endif // GAME_NET_GUARD_HPP
