@@ -173,6 +173,9 @@ int main() {
 	g_VirtualScene["antivirus"].applyTexture("../../assets/textures/antivirus.png");
 	g_VirtualScene["antivirus"].scale = glm::vec3(0.6f, 0.6f, 0.6f);
 
+	g_VirtualScene["skybox"].applyTexture("../../assets/textures/skybox.png");
+	g_VirtualScene["skybox"].object_style = PLAIN_TEXTURED;
+
 	// Configura os uniforms das texturas
 	glUseProgram(g_GpuProgramID);
 	glUniform1i(texture0_uniform, 0);
