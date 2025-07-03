@@ -52,8 +52,9 @@ class NetGuard {
 	bool isLeftMouseButtonPressed = false;
 
 	vec2 selectedPosition = vec2(-INFINITY, -INFINITY);
-	
-	const int gridHeight = 1.0f; 
+
+	const int gridHeight = 1.0f;
+
   public:
 	Camera camera = Camera(vec4(2.0f, 2.0f, 2.0f, 1.0f), -2.4f, -0.5f);
 
@@ -81,6 +82,7 @@ class NetGuard {
 		this->object_color_uniform = object_color_uniform;
 	}
 
+	// MARK: Stage Management
 	NetGuardStage getCurrentStage() const { return currentStage; }
 
 	string getCurrentStageString() const {
@@ -128,7 +130,7 @@ class NetGuard {
 		}
 	}
 
-	// MARK: Game loop
+	// MARK: Update
 
 	void update(float deltaTime) {
 		static int onboardingUpdateStage = 0;
@@ -199,49 +201,7 @@ class NetGuard {
 		}
 	}
 
-	void defenseDeploymentUpdate() {
-		camera.position = vec4(0.0f, 20.0f, 0.0f, 1.0f);
-		camera.mode = CameraMode::TopDown;
-		
-		// Handle grid selection logic
-		double cursorX, cursorY;
-		glfwGetCursorPos(window, &cursorX, &cursorY);
-		Ray pickingRay = camera.getPickingRay(1024.0f, 768.0f, cursorX, cursorY);
-
-		// Check collision for each grid cell
-		for (int x = -6; x <= 5; x++) {
-			for (int z = -6; z <= 5; z++) {
-				float centerX = x + 0.5f;
-				float centerZ = z + 0.5f;
-				
-				float scaleX = 0.9f;
-				float scaleZ = 0.9f;
-
-				Plane planeAbs =
-				    Plane(vec4(centerX - 0.5f * scaleX, 1.0f, centerZ - 0.5f * scaleZ, 1.0f),
-				          vec4(centerX - 0.5f * scaleX, 1.0f, centerZ + 0.5f * scaleZ, 1.0f),
-				          vec4(centerX + 0.5f * scaleX, 1.0f, centerZ + 0.5f * scaleZ, 1.0f),
-				          vec4(centerX + 0.5f * scaleX, 1.0f, centerZ - 0.5f * scaleZ, 1.0f));
-
-				if (checkCollision(pickingRay, planeAbs)) {
-					selectedPosition = vec2(centerX, centerZ);
-				}
-			}
-		}
-	}
-
-	void onboardingUpdate(float deltaTime, int &onboardingUpdateStage) {
-		if (onboardingUpdateStage == 0) {
-			camera.target = vec4(0.0f, 0.0f, 0.0f, 1.0f);
-			camera.position = vec4(20.0f, 30.0f, 20.0f, 1.0f);
-			camera.mode = CameraMode::LookAt;
-			onboardingUpdateStage++;
-		} else {
-			camera.position.x += camera.position.z / 2 * deltaTime;
-			camera.position.z += -camera.position.x / 2 * deltaTime;
-		}
-	}
-
+	// MARK: Input Handling
 	void handleMovement(float deltaTime) {
 		float velocity = movementSpeed * deltaTime;
 
@@ -259,16 +219,17 @@ class NetGuard {
 			camera.move(CameraMovement::Down, velocity);
 	}
 
-	void handleMouseMovement(GLFWwindow* window, double xpos, double ypos) {
+	void handleMouseMovement(GLFWwindow *window, double xpos, double ypos) {
 		camera.handleMouseMovement(xpos, ypos, isLeftMouseButtonPressed);
 	}
 
 	void handleMouseClick(GLFWwindow *window, int button, int action, int mods) {
 		if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
 			isLeftMouseButtonPressed = true;
-			
+
 			if (currentStage == NetGuardStage::defenseDeployment) {
-				AntiVirusUnit newUnit(vec4(selectedPosition.x, gridHeight + 0.5f, selectedPosition.y, 1.0f), vec4(0.0f, 1.0f, 0.0f, 1.0f));
+				AntiVirusUnit newUnit(vec4(selectedPosition.x, gridHeight + 0.5f, selectedPosition.y, 1.0f),
+				                      vec4(0.0f, 1.0f, 0.0f, 1.0f));
 
 				newUnit.sceneObject = antivirusSceneObject;
 				defenseUnits.push_back(newUnit);
@@ -277,6 +238,50 @@ class NetGuard {
 
 		if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
 			isLeftMouseButtonPressed = false;
+		}
+	}
+
+	// MARK: Onboarding
+	void onboardingUpdate(float deltaTime, int &onboardingUpdateStage) {
+		if (onboardingUpdateStage == 0) {
+			camera.target = vec4(0.0f, 0.0f, 0.0f, 1.0f);
+			camera.position = vec4(20.0f, 30.0f, 20.0f, 1.0f);
+			camera.mode = CameraMode::LookAt;
+			onboardingUpdateStage++;
+		} else {
+			camera.position.x += camera.position.z / 2 * deltaTime;
+			camera.position.z += -camera.position.x / 2 * deltaTime;
+		}
+	}
+	// MARK: Defense Deployment
+
+	void defenseDeploymentUpdate() {
+		camera.position = vec4(0.0f, 20.0f, 0.0f, 1.0f);
+		camera.mode = CameraMode::TopDown;
+
+		// Handle grid selection logic
+		double cursorX, cursorY;
+		glfwGetCursorPos(window, &cursorX, &cursorY);
+		Ray pickingRay = camera.getPickingRay(1024.0f, 768.0f, cursorX, cursorY);
+
+		// Check collision for each grid cell
+		for (int x = -6; x <= 5; x++) {
+			for (int z = -6; z <= 5; z++) {
+				float centerX = x + 0.5f;
+				float centerZ = z + 0.5f;
+
+				float scaleX = 0.9f;
+				float scaleZ = 0.9f;
+
+				Plane planeAbs = Plane(vec4(centerX - 0.5f * scaleX, 1.0f, centerZ - 0.5f * scaleZ, 1.0f),
+				                       vec4(centerX - 0.5f * scaleX, 1.0f, centerZ + 0.5f * scaleZ, 1.0f),
+				                       vec4(centerX + 0.5f * scaleX, 1.0f, centerZ + 0.5f * scaleZ, 1.0f),
+				                       vec4(centerX + 0.5f * scaleX, 1.0f, centerZ - 0.5f * scaleZ, 1.0f));
+
+				if (checkCollision(pickingRay, planeAbs)) {
+					selectedPosition = vec2(centerX, centerZ);
+				}
+			}
 		}
 	}
 
