@@ -226,14 +226,6 @@ class NetGuard {
 	void handleMouseClick(GLFWwindow *window, int button, int action, int mods) {
 		if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
 			isLeftMouseButtonPressed = true;
-
-			if (currentStage == NetGuardStage::defenseDeployment) {
-				AntiVirusUnit newUnit(vec4(selectedPosition.x, gridHeight + 0.5f, selectedPosition.y, 1.0f),
-				                      vec4(0.0f, 1.0f, 0.0f, 1.0f));
-
-				newUnit.sceneObject = antivirusSceneObject;
-				defenseUnits.push_back(newUnit);
-			}
 		}
 
 		if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
@@ -282,6 +274,20 @@ class NetGuard {
 					selectedPosition = vec2(centerX, centerZ);
 				}
 			}
+		}
+
+		if (isLeftMouseButtonPressed) {
+			for (const auto &defenseUnit : defenseUnits) {
+				if (defenseUnit.getPosition().x == selectedPosition.x &&
+				    defenseUnit.getPosition().y == selectedPosition.y) {
+					return; // Position already occupied
+				}
+			}
+			AntiVirusUnit newUnit(vec4(selectedPosition.x, gridHeight + .6f, selectedPosition.y, 1.0f),
+			                      vec4(0.0f, 1.0f, 0.0f, 1.0f));
+	
+			newUnit.sceneObject = antivirusSceneObject;
+			defenseUnits.push_back(newUnit);
 		}
 	}
 

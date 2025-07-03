@@ -170,6 +170,9 @@ int main() {
 	g_VirtualScene["board"].scale = glm::vec3(0.5f, 0.5f, 0.5f);
 	g_NetGuard.board = &g_VirtualScene["board"];
 
+	g_VirtualScene["antivirus"].applyTexture("../../assets/textures/antivirus.png");
+	g_VirtualScene["antivirus"].scale = glm::vec3(0.6f, 0.6f, 0.6f);
+
 	// Configura os uniforms das texturas
 	glUseProgram(g_GpuProgramID);
 	glUniform1i(texture0_uniform, 0);
