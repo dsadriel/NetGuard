@@ -167,6 +167,7 @@ int main() {
 	g_VirtualScene["board"].applyTexture("../../assets/textures/grid.png");
 	g_VirtualScene["board"].object_style = FLAT_TEXTURED;
 	g_VirtualScene["board"].scale = glm::vec3(1.0f, 1.0f, 1.0f);
+	g_VirtualScene["board"].position = glm::vec4(0.0f, 0.01f, 0.0f, 1.0f);
 	g_NetGuard.board = &g_VirtualScene["board"];
 
 	g_VirtualScene["antivirus"].applyTexture("../../assets/textures/antivirus.png");
