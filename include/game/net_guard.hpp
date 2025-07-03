@@ -257,8 +257,8 @@ class NetGuard {
 		Ray pickingRay = camera.getPickingRay(1024.0f, 768.0f, cursorX, cursorY);
 
 		// Check collision for each grid cell
-		for (int x = -6; x <= 5; x++) {
-			for (int z = -6; z <= 5; z++) {
+		for (int x = -6; x <= 6; x++) {
+			for (int z = -6; z <= 6; z++) {
 				float centerX = x + 0.5f;
 				float centerZ = z + 0.5f;
 
@@ -285,7 +285,7 @@ class NetGuard {
 			}
 			AntiVirusUnit newUnit(vec4(selectedPosition.x, gridHeight + .6f, selectedPosition.y, 1.0f),
 			                      vec4(0.0f, 1.0f, 0.0f, 1.0f));
-	
+
 			newUnit.sceneObject = antivirusSceneObject;
 			defenseUnits.push_back(newUnit);
 		}
@@ -293,8 +293,8 @@ class NetGuard {
 
 	void drawDefenseDeploymentScreen() {
 		plane->scale = vec4(.9f, .9f, .9f, .9f);
-		for (int x = -6; x <= 5; x++) {
-			for (int z = -6; z <= 5; z++) {
+		for (int x = -6; x <= 6; x++) {
+			for (int z = -6; z <= 6; z++) {
 				float centerX = x + 0.5f;
 				float centerZ = z + 0.5f;
 

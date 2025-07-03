@@ -163,11 +163,10 @@ int main() {
 
 	g_VirtualScene["map"].applyTexture("../../assets/textures/grid.png");
 	g_VirtualScene["map"].object_style = FLAT_TEXTURED;
-	g_VirtualScene["map"].scale = glm::vec3(0.5f, 0.5f, 0.5f);
 
 	g_VirtualScene["board"].applyTexture("../../assets/textures/grid.png");
 	g_VirtualScene["board"].object_style = FLAT_TEXTURED;
-	g_VirtualScene["board"].scale = glm::vec3(0.5f, 0.5f, 0.5f);
+	g_VirtualScene["board"].scale = glm::vec3(1.0f, 1.0f, 1.0f);
 	g_NetGuard.board = &g_VirtualScene["board"];
 
 	g_VirtualScene["antivirus"].applyTexture("../../assets/textures/antivirus.png");
@@ -214,7 +213,7 @@ int main() {
 		glDepthMask(GL_TRUE); // Volta a escrever no depth buffer
 
 
-		g_NetGuard.update(g_DeltaTime); // Use actual delta time instead of fixed 0.016f
+		g_NetGuard.update(g_DeltaTime);
 
 		g_NetGuard.draw();
 
