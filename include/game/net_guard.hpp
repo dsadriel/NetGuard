@@ -30,9 +30,9 @@ class NetGuard {
 	NetGuardStage currentStage;
 
 	// List of defense units
-	vector<DefenseUnit> defenseUnits;
+	vector<GameUnit> defenseUnits;
 	// List of invasion units
-	vector<InvasionUnit> invasionUnits;
+	vector<GameUnit> invasionUnits;
 
 	// Game state variables
 	int currentInvasionWave = 0;
@@ -147,6 +147,7 @@ class NetGuard {
 		case NetGuardStage::invasionPhase:
 			// Handle invasion phase logic
 			camera.mode = CameraMode::Free;
+			updateInvasionPhase(deltaTime);
 			handleMovement(deltaTime);
 			break;
 		case NetGuardStage::invasionPhaseCompleted:
@@ -171,7 +172,7 @@ class NetGuard {
 
 		for (auto &defenseUnit : defenseUnits) {
 			if (defenseUnit.sceneObject != nullptr) {
-				defenseUnit.sceneObject->position = defenseUnit.getPosition();
+				defenseUnit.sceneObject->position = defenseUnit.position;
 				defenseUnit.sceneObject->drawObject(model_uniform, object_style_uniform, object_color_uniform);
 			}
 		}
@@ -184,7 +185,7 @@ class NetGuard {
 			drawDefenseDeploymentScreen();
 			break;
 		case NetGuardStage::invasionPhase:
-			// Draw invasion phase screen
+			drawInvasionPhase();
 			break;
 		case NetGuardStage::invasionPhaseCompleted:
 			// Draw invasion phase completed screen
@@ -278,11 +279,12 @@ class NetGuard {
 
 		if (isLeftMouseButtonPressed) {
 			if (isPositionInPath(selectedPosition.x - 0.5f, selectedPosition.y - 0.5f)) {
+				printf("X: %f, Y: %f\n", selectedPosition.x, selectedPosition.y);
 				return; // Cannot place defense unit in path
 			}
 			for (const auto &defenseUnit : defenseUnits) {
-				if (defenseUnit.getPosition().x == selectedPosition.x &&
-				    defenseUnit.getPosition().y == selectedPosition.y) {
+				if (defenseUnit.position.x == selectedPosition.x &&
+				    defenseUnit.position.y == selectedPosition.y) {
 					return; // Position already occupied
 				}
 			}
@@ -325,6 +327,65 @@ class NetGuard {
 	bool isPositionInPath(int x, int z) {
 		return (z % 2 != 0 && abs(x) != 6 && !(x > 0 && z == 5)) || (x == 5 && (z == 2 || z == -2)) ||
 		       (x == -5 && (abs(z) == 4 || z == 0)) || (x == 0 && z == 6) || (x == 5 && z == -6);
+	}
+
+	vector<vec2> getPathPoints() {
+		vector<vec2> points = {{5.5f, -5.5f}, {5.5f, -4.5f},  {-4.5f, -4.5f}, {-4.5f, -2.5f}, {5.5f, -2.5f},
+		                       {5.5f, -0.5f}, {-4.5f, -0.5f}, {-4.5f, 1.5f},  {5.5f, 1.5f},   {5.5f, 3.5f},
+		                       {-4.5f, 3.5f}, {-4.5f, 5.5f},  {0.5f, 5.5f},   {0.5f, 6.5f}};
+		return points;
+	}
+	
+
+	void updateInvasionPhase(float deltaTime) {
+		static int currentTargetIndex = 0;
+		vector<vec2> targets = getPathPoints();
+
+		if (invasionUnits.empty()) {
+			GameUnit invasionUnit(vec4(5.0f, 2.0f, -6.0f, 1.0f), vec4(0.0f, 0.0f, 0.0f, 1.0f));
+			invasionUnit.sceneObject = cat;
+			invasionUnit.sceneObject->scale = vec4(0.7f, 0.7f, 0.7f, 1.0f);
+			invasionUnits.push_back(invasionUnit);
+		}
+
+		for (auto &invasionUnit : invasionUnits) {
+			if (invasionUnit.sceneObject != nullptr) {
+				vec2 target = targets[currentTargetIndex];
+
+				vec2 currentPosition = vec2(invasionUnit.position.x, invasionUnit.position.z);
+
+				vec2 toTarget = target - currentPosition;
+				vec2 direction = length(toTarget) > 0.0001f ? normalize(toTarget) : vec2(0.0f, 0.0f);
+				
+				vec2 newPos = currentPosition + direction * 0.5f * deltaTime;
+				invasionUnit.position = vec4(newPos.x, invasionUnit.position.y, newPos.y, 1.0f);
+			
+				float angle = atan2(direction.x, direction.y);
+				invasionUnit.rotation = vec4(0.0f, angle, 0.0f, 1.0f);
+
+				if (length(toTarget) < 0.1f) {
+					invasionUnit.position = vec4(target.x, invasionUnit.position.y, target.y, 1.0f);
+					currentTargetIndex = (currentTargetIndex + 1) % targets.size();
+				}
+			}
+		}
+	}
+
+	void drawInvasionPhase() {
+		// vector<vec2> targets = getPathPoints();
+		// for (auto &pos : targets) {
+		// 	plane->position = vec4(pos.x, gridHeight + 0.02f, pos.y, 1.0f);
+		// 	plane->color = vec4(0.2f, 0.2f, 0.2f, 1.0f);
+		// 	plane->drawObject(model_uniform, object_style_uniform, object_color_uniform);
+		// }
+
+		for (auto &invasionUnit : invasionUnits) {
+			if (invasionUnit.sceneObject != nullptr) {
+				invasionUnit.sceneObject->position = invasionUnit.position;
+				invasionUnit.sceneObject->rotation = invasionUnit.rotation;
+				invasionUnit.sceneObject->drawObject(model_uniform, object_style_uniform, object_color_uniform);
+			}
+		}
 	}
 };
 
