@@ -6,32 +6,29 @@
 
 using namespace glm;
 
-class DefenseUnit {
-  private:
-	vec4 position;  // Position of the defense unit
-	vec4 direction; // Direction the unit is facing
-  public:
-  	SceneObject* sceneObject;
+class GameUnit {
+	private:
+	public:
+		SceneObject* sceneObject;
+		vec4 position; // Position of the unit
+		vec4 rotation; // Rotation of the unit
+		int targetIndex;
+		vec2 target;
 
-	DefenseUnit(vec4 pos, vec4 dir) : position(pos), direction(dir), sceneObject(nullptr) {};
-	DefenseUnit() : position(vec4(0.0f)), direction(vec4(0.0f, 0.0f, 1.0f, 0.0f)), sceneObject(nullptr) {}
 
-	// Getters for position and direction
-	vec4 getPosition() const { return position; }
-	vec4 getDirection() const { return direction; }
 
-	// Setters for position and direction
-	void setPosition(const vec4 &pos) { position = pos; }
-	void setDirection(const vec4 &dir) { direction = dir; }
+	GameUnit(vec4 pos, vec4 dir) : position(pos), rotation(dir), sceneObject(nullptr) {};
+	GameUnit() : position(vec4(0.0f)), rotation(vec4(0.0f, 0.0f, 1.0f, 0.0f)), sceneObject(nullptr) {}
 
 	virtual void defenseAction() {}
+	virtual void attackAction() {}
 };
 
-class AntiVirusUnit : public DefenseUnit {
+class AntiVirusUnit : public GameUnit {
 	public:
 	
-	AntiVirusUnit(vec4 pos, vec4 dir) : DefenseUnit(pos, dir) {}
-	AntiVirusUnit() : DefenseUnit() {}
+	AntiVirusUnit(vec4 pos, vec4 dir) : GameUnit(pos, dir) {}
+	AntiVirusUnit() : GameUnit() {}
 
 	void defenseAction() override {
 		// Implement specific action for AntiVirusUnit
