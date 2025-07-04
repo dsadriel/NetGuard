@@ -277,6 +277,9 @@ class NetGuard {
 		}
 
 		if (isLeftMouseButtonPressed) {
+			if (isPositionInPath(selectedPosition.x - 0.5f, selectedPosition.y - 0.5f)) {
+				return; // Cannot place defense unit in path
+			}
 			for (const auto &defenseUnit : defenseUnits) {
 				if (defenseUnit.getPosition().x == selectedPosition.x &&
 				    defenseUnit.getPosition().y == selectedPosition.y) {
@@ -298,17 +301,30 @@ class NetGuard {
 				float centerX = x + 0.5f;
 				float centerZ = z + 0.5f;
 
-				plane->position = vec4(centerX, gridHeight + 0.01f, centerZ, 1.0f);
+				plane->position = vec4(centerX, gridHeight + 0.02f, centerZ, 1.0f);
 
-				if (centerX == selectedPosition.x && centerZ == selectedPosition.y) {
-					plane->color = vec4(0.3f, 0.5f, 0.3f, 1.0f); // Highlighted color
+				vec4 pathColor = vec4(0.0f, 0.0f, 0.0f, 1.0f);
+				vec4 availablePositionColor = vec4(0.2f, 0.2f, 0.2f, 1.0f);
+				vec4 selectedPositionColor = vec4(0.3f, 0.5f, 0.3f, 1.0f);
+
+				if (isPositionInPath(x, z)) {
+					plane->color = pathColor;
 				} else {
-					plane->color = vec4(0.05f, 0.05f, 0.05f, 1.0f); // Default color
+					if (selectedPosition.x == centerX && selectedPosition.y == centerZ) {
+						plane->color = selectedPositionColor;
+					} else {
+						plane->color = availablePositionColor;
+					}
 				}
 
 				plane->drawObject(model_uniform, object_style_uniform, object_color_uniform);
 			}
 		}
+	}
+
+	bool isPositionInPath(int x, int z) {
+		return (z % 2 != 0 && abs(x) != 6 && !(x > 0 && z == 5)) || (x == 5 && (z == 2 || z == -2)) ||
+		       (x == -5 && (abs(z) == 4 || z == 0)) || (x == 0 && z == 6) || (x == 5 && z == -6);
 	}
 };
 
