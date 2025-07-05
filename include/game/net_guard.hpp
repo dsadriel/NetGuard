@@ -30,9 +30,10 @@ class NetGuard {
 	NetGuardStage currentStage;
 
 	// List of defense units
-	vector<DefenseUnit> defenseUnits;
+	vector<GameUnit> availableDefenseUnits;
+	vector<GameUnit> defenseUnits;
 	// List of invasion units
-	vector<InvasionUnit> invasionUnits;
+	vector<GameUnit> invasionUnits;
 
 	// Game state variables
 	int currentInvasionWave = 0;
@@ -49,6 +50,19 @@ class NetGuard {
 	GLint object_style_uniform;
 	GLint object_color_uniform;
 
+	bool isLeftMouseButtonPressed = false;
+
+	vec2 selectedPosition = vec2(-INFINITY, -INFINITY);
+
+	const int gridHeight = 1.0f;
+
+	// Game SceneObjects
+	SceneObject *map = nullptr;
+	SceneObject *board = nullptr;
+	SceneObject *cat = nullptr;
+	SceneObject *plane = nullptr;
+	SceneObject *antivirusSceneObject = nullptr;
+
   public:
 	Camera camera = Camera(vec4(2.0f, 2.0f, 2.0f, 1.0f), -2.4f, -0.5f);
 
@@ -62,12 +76,6 @@ class NetGuard {
 		playerLives = 3;
 	}
 
-	// Game SceneObjects
-	SceneObject *map = nullptr;
-	SceneObject *board = nullptr;
-	SceneObject *cat = nullptr;
-	SceneObject *plane = nullptr;
-
 	void link(GLFWwindow *window, GLint model_uniform, GLint object_style_uniform, GLint object_color_uniform) {
 		this->window = window;
 		this->model_uniform = model_uniform;
@@ -75,6 +83,30 @@ class NetGuard {
 		this->object_color_uniform = object_color_uniform;
 	}
 
+	void linkSceneObjects(SceneObject *map, SceneObject *board, SceneObject *cat, SceneObject *plane,
+	                      SceneObject *antivirusSceneObject) {
+		this->map = map;
+		this->board = board;
+		this->cat = cat;
+		this->plane = plane;
+		this->antivirusSceneObject = antivirusSceneObject;
+
+		availableDefenseUnits.clear();
+		availableDefenseUnits.push_back(AntiVirusUnit(antivirusSceneObject));
+		availableDefenseUnits.push_back(AntiVirusUnit(antivirusSceneObject));
+		availableDefenseUnits.push_back(AntiVirusUnit(antivirusSceneObject));
+		availableDefenseUnits.push_back(AntiVirusUnit(antivirusSceneObject));
+		availableDefenseUnits.push_back(AntiVirusUnit(antivirusSceneObject));
+		availableDefenseUnits.push_back(AntiVirusUnit(antivirusSceneObject));
+		availableDefenseUnits.push_back(AntiVirusUnit(antivirusSceneObject));
+		availableDefenseUnits.push_back(AntiVirusUnit(antivirusSceneObject));
+		availableDefenseUnits.push_back(AntiVirusUnit(antivirusSceneObject));
+		availableDefenseUnits.push_back(AntiVirusUnit(antivirusSceneObject));
+		availableDefenseUnits.push_back(AntiVirusUnit(antivirusSceneObject));
+		availableDefenseUnits.push_back(AntiVirusUnit(antivirusSceneObject));
+	}
+
+	// MARK: Stage Management
 	NetGuardStage getCurrentStage() const { return currentStage; }
 
 	string getCurrentStageString() const {
@@ -122,7 +154,7 @@ class NetGuard {
 		}
 	}
 
-	// MARK: Game loop
+	// MARK: Update
 
 	void update(float deltaTime) {
 		static int onboardingUpdateStage = 0;
@@ -138,8 +170,8 @@ class NetGuard {
 			break;
 		case NetGuardStage::invasionPhase:
 			// Handle invasion phase logic
-			drawDefenseDeploymentScreen(); // REMOVE LATER, JUST FOR TESTING
 			camera.mode = CameraMode::Free;
+			updateInvasionPhase(deltaTime);
 			handleMovement(deltaTime);
 			break;
 		case NetGuardStage::invasionPhaseCompleted:
@@ -159,9 +191,15 @@ class NetGuard {
 
 	// MARK: Draw
 	void draw() {
-
 		map->drawObject(model_uniform, object_style_uniform, object_color_uniform);
 		board->drawObject(model_uniform, object_style_uniform, object_color_uniform);
+
+		for (auto &defenseUnit : defenseUnits) {
+			if (defenseUnit.sceneObject != nullptr) {
+				defenseUnit.draw(model_uniform, object_style_uniform, object_color_uniform);
+			}
+		}
+
 		switch (currentStage) {
 		case NetGuardStage::onboarding:
 			// Draw onboarding screen
@@ -170,7 +208,7 @@ class NetGuard {
 			drawDefenseDeploymentScreen();
 			break;
 		case NetGuardStage::invasionPhase:
-			// Draw invasion phase screen
+			drawInvasionPhase();
 			break;
 		case NetGuardStage::invasionPhaseCompleted:
 			// Draw invasion phase completed screen
@@ -187,23 +225,7 @@ class NetGuard {
 		}
 	}
 
-	void defenseDeploymentUpdate() {
-		camera.position = vec4(0.0f, 20.0f, 0.0f, 1.0f);
-		camera.mode = CameraMode::TopDown;
-	}
-
-	void onboardingUpdate(float deltaTime, int &onboardingUpdateStage) {
-		if (onboardingUpdateStage == 0) {
-			camera.target = vec4(0.0f, 0.0f, 0.0f, 1.0f);
-			camera.position = vec4(20.0f, 30.0f, 20.0f, 1.0f);
-			camera.mode = CameraMode::LookAt;
-			onboardingUpdateStage++;
-		} else {
-			camera.position.x += camera.position.z / 2 * deltaTime;
-			camera.position.z += -camera.position.x / 2 * deltaTime;
-		}
-	}
-
+	// MARK: Input Handling
 	void handleMovement(float deltaTime) {
 		float velocity = movementSpeed * deltaTime;
 
@@ -221,32 +243,214 @@ class NetGuard {
 			camera.move(CameraMovement::Down, velocity);
 	}
 
-	void drawDefenseDeploymentScreen() {
+	void handleMouseMovement(GLFWwindow *window, double xpos, double ypos) {
+		camera.handleMouseMovement(xpos, ypos, isLeftMouseButtonPressed);
+	}
+
+	void handleMouseClick(GLFWwindow *window, int button, int action, int mods) {
+		if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+			isLeftMouseButtonPressed = true;
+
+			if (currentStage == NetGuardStage::defenseDeployment) {
+				defenseDeploymentAddUnit();
+			}
+		}
+
+		if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
+			isLeftMouseButtonPressed = false;
+		}
+	}
+
+	// MARK: Path definition
+	bool isPositionInPath(int x, int z) {
+		return (z % 2 != 0 && abs(x) != 6 && !(x > 0 && z == 5)) || (x == 5 && (z == 2 || z == -2)) ||
+		       (x == -5 && (abs(z) == 4 || z == 0)) || (x == 0 && z == 6) || (x == 5 && z == -6);
+	}
+
+	vector<vec2> getPathPoints() {
+		vector<vec2> points = {{5.5f, -5.5f}, {5.5f, -4.5f},  {-4.5f, -4.5f}, {-4.5f, -2.5f}, {5.5f, -2.5f},
+		                       {5.5f, -0.5f}, {-4.5f, -0.5f}, {-4.5f, 1.5f},  {5.5f, 1.5f},   {5.5f, 3.5f},
+		                       {-4.5f, 3.5f}, {-4.5f, 5.5f},  {0.5f, 5.5f},   {0.5f, 6.5f}};
+		return points;
+	}
+
+	// MARK: Onboarding
+	void onboardingUpdate(float deltaTime, int &onboardingUpdateStage) {
+		if (onboardingUpdateStage == 0) {
+			camera.target = vec4(0.0f, 0.0f, 0.0f, 1.0f);
+			camera.position = vec4(20.0f, 30.0f, 20.0f, 1.0f);
+			camera.mode = CameraMode::LookAt;
+			onboardingUpdateStage++;
+		} else {
+			camera.position.x += camera.position.z / 2 * deltaTime;
+			camera.position.z += -camera.position.x / 2 * deltaTime;
+		}
+	}
+
+	// MARK: Defense Deployment
+	void defenseDeploymentUpdate() {
+		camera.position = vec4(4.0f, 20.0f, 0.0f, 1.0f);
+		camera.mode = CameraMode::TopDown;
+		selectedPosition = vec2(INFINITY, INFINITY);
+
+		// Handle grid selection logic
 		double cursorX, cursorY;
 		glfwGetCursorPos(window, &cursorX, &cursorY);
 		Ray pickingRay = camera.getPickingRay(1024.0f, 768.0f, cursorX, cursorY);
 
-		plane->scale = vec4(.9f, .9f, .9f, .9f);
-		for (int x = -6; x <= 5; x++) {
-			for (int z = -6; z <= 5; z++) {
+		// Check collision for each grid cell
+		for (int x = -6; x <= 6; x++) {
+			for (int z = -6; z <= 6; z++) {
 				float centerX = x + 0.5f;
 				float centerZ = z + 0.5f;
 
-				plane->position = vec4(centerX, 1.01f, centerZ, 1.0f);
+				Plane planeAbs = Plane(vec4(centerX - 0.5f, 1.0f, centerZ - 0.5f, 1.0f),
+				                       vec4(centerX - 0.5f, 1.0f, centerZ + 0.5f, 1.0f),
+				                       vec4(centerX + 0.5f, 1.0f, centerZ + 0.5f, 1.0f),
+				                       vec4(centerX + 0.5f, 1.0f, centerZ - 0.5f, 1.0f));
 
-				Plane planeAbs =
-				    Plane(vec4(centerX - 0.5f * plane->scale.x, 1.0f, centerZ - 0.5f * plane->scale.z, 1.0f),
-				          vec4(centerX - 0.5f * plane->scale.x, 1.0f, centerZ + 0.5f * plane->scale.z, 1.0f),
-				          vec4(centerX + 0.5f * plane->scale.x, 1.0f, centerZ + 0.5f * plane->scale.z, 1.0f),
-				          vec4(centerX + 0.5f * plane->scale.x, 1.0f, centerZ - 0.5f * plane->scale.z, 1.0f));
+				if (checkCollision(pickingRay, planeAbs) && !isPositionInPath(x, z)) {
+					selectedPosition = vec2(centerX, centerZ);
+				}
+			}
+		}
+	}
 
-				if (checkCollision(pickingRay, planeAbs)) {
-					plane->color = vec4(0.2f, 0.8f, 0.2f, 1.0f);
+	void defenseDeploymentAddUnit() {
+		if (selectedPosition.x != INFINITY && selectedPosition.y != INFINITY) {
+			if (isPositionInPath(selectedPosition.x - 0.5f, selectedPosition.y - 0.5f)) {
+				printf("X: %f, Y: %f\n", selectedPosition.x, selectedPosition.y);
+				return; // Cannot place defense unit in path
+			}
+
+			for (const auto &defenseUnit : defenseUnits) {
+				if (defenseUnit.position.x == selectedPosition.x && defenseUnit.position.z == selectedPosition.y) {
+					printf("Position already occupied by another defense unit.\n");
+					return; // Position already occupied
+				}
+			}
+
+			if (!availableDefenseUnits.empty()) {
+				GameUnit newUnit = availableDefenseUnits.back();
+				availableDefenseUnits.pop_back();
+				newUnit.position = vec4(selectedPosition.x, gridHeight + .6f, selectedPosition.y, 1.0f);
+				defenseUnits.push_back(newUnit);
+			} else {
+				printf("No available defense units to place.\n");
+			}
+		}
+	}
+
+	void drawDefenseDeploymentScreen() {
+		plane->scale = vec4(.9f, .9f, .9f, .9f);
+		for (int x = -6; x <= 6; x++) {
+			for (int z = -6; z <= 6; z++) {
+				float centerX = x + 0.5f;
+				float centerZ = z + 0.5f;
+
+				plane->position = vec4(centerX, gridHeight + 0.02f, centerZ, 1.0f);
+
+				vec4 pathColor = vec4(0.0f, 0.0f, 0.0f, 1.0f);
+				vec4 availablePositionColor = vec4(0.2f, 0.2f, 0.2f, 1.0f);
+				vec4 selectedPositionColor = vec4(0.3f, 0.5f, 0.3f, 1.0f);
+				vec4 notPermitedColor = vec4(1.0f, 0.0f, 0.0f, 1.0f);
+
+				if (isPositionInPath(x, z)) {
+					plane->color = pathColor;
 				} else {
-					plane->color = vec4(0.05f, 0.05f, 0.05f, 1.0f);
+					if (selectedPosition.x == centerX && selectedPosition.y == centerZ) {
+						plane->color = availableDefenseUnits.empty() ? notPermitedColor : selectedPositionColor;
+					} else {
+						plane->color = availablePositionColor;
+					}
 				}
 
 				plane->drawObject(model_uniform, object_style_uniform, object_color_uniform);
+			}
+		}
+
+		// Draw available defense units
+		int gridSize = 4, startX = 9, startZ = -6, idx = 0;
+
+		int availableCount = availableDefenseUnits.size();
+
+		// If there are available defense units, draw them in the grid
+		if (availableCount > 0) {
+			// If selected position is valid, draw the last available defense unit there
+			if (selectedPosition.x != INFINITY && selectedPosition.y != INFINITY) {
+				if (availableDefenseUnits.back().sceneObject != nullptr) {
+					availableDefenseUnits.back().position =
+					    vec4(selectedPosition.x, gridHeight + 0.6f, selectedPosition.y, 1.0f);
+					availableDefenseUnits.back().draw(model_uniform, object_style_uniform, object_color_uniform);
+				}
+
+				// Decrease the count of available units, so it won't be drawn again
+				availableCount--;
+			}
+
+			// Draw the available defense units in a grid
+			for (int j = 0; j < gridSize && idx < availableCount; ++j) {
+				for (int i = 0; i < gridSize && idx < availableCount; ++i, ++idx) {
+					auto &availableDU = availableDefenseUnits[idx];
+					if (availableDU.sceneObject != nullptr) {
+						float posX = startX + i + 0.5f;
+						float posZ = startZ + j + 0.5f;
+						availableDU.position = vec4(posX, 0.6f, posZ, 1.0f);
+						availableDU.draw(model_uniform, object_style_uniform, object_color_uniform);
+					}
+				}
+			}
+		}
+	}
+
+	// MARK: Invasion Phase
+	void updateInvasionPhase(float deltaTime) {
+		static int currentTargetIndex = 0;
+		vector<vec2> targets = getPathPoints();
+
+		if (invasionUnits.empty()) {
+			GameUnit invasionUnit(vec4(5.0f, 2.0f, -6.0f, 1.0f), vec4(0.0f, 0.0f, 0.0f, 1.0f));
+			invasionUnit.sceneObject = cat;
+			invasionUnit.sceneObject->scale = vec4(0.7f, 0.7f, 0.7f, 1.0f);
+			invasionUnits.push_back(invasionUnit);
+		}
+
+		for (auto &invasionUnit : invasionUnits) {
+			if (invasionUnit.sceneObject != nullptr) {
+				vec2 target = targets[currentTargetIndex];
+
+				vec2 currentPosition = vec2(invasionUnit.position.x, invasionUnit.position.z);
+
+				vec2 toTarget = target - currentPosition;
+				vec2 direction = length(toTarget) > 0.0001f ? normalize(toTarget) : vec2(0.0f, 0.0f);
+
+				vec2 newPos = currentPosition + direction * 0.5f * deltaTime;
+				invasionUnit.position = vec4(newPos.x, invasionUnit.position.y, newPos.y, 1.0f);
+
+				float angle = atan2(direction.x, direction.y);
+				invasionUnit.rotation = vec4(0.0f, angle, 0.0f, 1.0f);
+
+				if (length(toTarget) < 0.1f) {
+					invasionUnit.position = vec4(target.x, invasionUnit.position.y, target.y, 1.0f);
+					currentTargetIndex = (currentTargetIndex + 1) % targets.size();
+				}
+			}
+		}
+	}
+
+	void drawInvasionPhase() {
+		// vector<vec2> targets = getPathPoints();
+		// for (auto &pos : targets) {
+		// 	plane->position = vec4(pos.x, gridHeight + 0.02f, pos.y, 1.0f);
+		// 	plane->color = vec4(0.2f, 0.2f, 0.2f, 1.0f);
+		// 	plane->drawObject(model_uniform, object_style_uniform, object_color_uniform);
+		// }
+
+		for (auto &invasionUnit : invasionUnits) {
+			if (invasionUnit.sceneObject != nullptr) {
+				invasionUnit.sceneObject->position = invasionUnit.position;
+				invasionUnit.sceneObject->rotation = invasionUnit.rotation;
+				invasionUnit.sceneObject->drawObject(model_uniform, object_style_uniform, object_color_uniform);
 			}
 		}
 	}

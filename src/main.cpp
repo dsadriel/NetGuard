@@ -127,26 +127,31 @@ int main() {
 	ObjModel mapModel("../../assets/models/map.obj");
 	ComputeNormals(&mapModel);
 	BuildTrianglesAndAddToVirtualScene(&mapModel);
-	g_NetGuard.map = &g_VirtualScene["map"];
 
 	ObjModel boardModel("../../assets/models/board.obj");
 	ComputeNormals(&boardModel);
 	BuildTrianglesAndAddToVirtualScene(&boardModel);
-	g_NetGuard.board = &g_VirtualScene["board"];
 
 	ObjModel neoCatModel("../../assets/models/neocat/neocat.obj");
 	ComputeNormals(&neoCatModel);
 	BuildTrianglesAndAddToVirtualScene(&neoCatModel);
-	g_NetGuard.cat = &g_VirtualScene["neocat"];
 
 	ObjModel plane1x1Model("../../assets/models/plane1x1.obj");
 	ComputeNormals(&plane1x1Model);
 	BuildTrianglesAndAddToVirtualScene(&plane1x1Model);
-	g_NetGuard.plane = &g_VirtualScene["plane1x1"];
 
 	ObjModel skyBoxModel("../../assets/models/skybox.obj");
 	ComputeNormals(&skyBoxModel);
 	BuildTrianglesAndAddToVirtualScene(&skyBoxModel);
+
+	ObjModel antivirusModel("../../assets/models/antivirus/antivirus.obj");
+	ComputeNormals(&antivirusModel);
+	BuildTrianglesAndAddToVirtualScene(&antivirusModel);
+
+	// Link all scene objects to NetGuard
+	g_NetGuard.linkSceneObjects(&g_VirtualScene["map"], &g_VirtualScene["board"], &g_VirtualScene["neocat"], 
+		&g_VirtualScene["plane1x1"], &g_VirtualScene["antivirus"]);
+
 
 	// ==================================================
 	// MARK: Carrega texturas
@@ -157,12 +162,14 @@ int main() {
 
 	g_VirtualScene["map"].applyTexture("../../assets/textures/grid.png");
 	g_VirtualScene["map"].object_style = FLAT_TEXTURED;
-	g_VirtualScene["map"].scale = glm::vec3(0.5f, 0.5f, 0.5f);
 
 	g_VirtualScene["board"].applyTexture("../../assets/textures/grid.png");
 	g_VirtualScene["board"].object_style = FLAT_TEXTURED;
-	g_VirtualScene["board"].scale = glm::vec3(0.5f, 0.5f, 0.5f);
-	g_NetGuard.board = &g_VirtualScene["board"];
+	g_VirtualScene["board"].scale = glm::vec3(1.0f, 1.0f, 1.0f);
+	g_VirtualScene["board"].position = glm::vec4(0.0f, 0.01f, 0.0f, 1.0f);
+
+	g_VirtualScene["antivirus"].applyTexture("../../assets/textures/antivirus.png");
+	g_VirtualScene["antivirus"].scale = glm::vec3(0.6f, 0.6f, 0.6f);
 
 	g_VirtualScene["skybox"].applyTexture("../../assets/textures/skybox.png");
 	g_VirtualScene["skybox"].object_style = PLAIN_TEXTURED;
@@ -208,15 +215,9 @@ int main() {
 		glDepthMask(GL_TRUE); // Volta a escrever no depth buffer
 
 
-		g_NetGuard.update(g_DeltaTime); // Use actual delta time instead of fixed 0.016f
+		g_NetGuard.update(g_DeltaTime);
 
 		g_NetGuard.draw();
-		
-
-		// g_VirtualScene["plane1x1"].scale = glm::vec3(0.9f, 1.0f, 0.9f);
-		// g_VirtualScene["plane1x1"].position = glm::vec4(0.0f, 1.01f, 0.0f, 1.0f);
-
-		// g_VirtualScene["neocat"].drawObject(g_model_uniform, object_style_uniform, object_color_uniform);
 
 		glBindVertexArray(0);
 
