@@ -30,6 +30,7 @@ class NetGuard {
 	NetGuardStage currentStage;
 
 	// List of defense units
+	vector<GameUnit> availableDefenseUnits;
 	vector<GameUnit> defenseUnits;
 	// List of invasion units
 	vector<GameUnit> invasionUnits;
@@ -55,6 +56,13 @@ class NetGuard {
 
 	const int gridHeight = 1.0f;
 
+	// Game SceneObjects
+	SceneObject *map = nullptr;
+	SceneObject *board = nullptr;
+	SceneObject *cat = nullptr;
+	SceneObject *plane = nullptr;
+	SceneObject *antivirusSceneObject = nullptr;
+
   public:
 	Camera camera = Camera(vec4(2.0f, 2.0f, 2.0f, 1.0f), -2.4f, -0.5f);
 
@@ -68,18 +76,34 @@ class NetGuard {
 		playerLives = 3;
 	}
 
-	// Game SceneObjects
-	SceneObject *map = nullptr;
-	SceneObject *board = nullptr;
-	SceneObject *cat = nullptr;
-	SceneObject *plane = nullptr;
-	SceneObject *antivirusSceneObject = nullptr;
-
 	void link(GLFWwindow *window, GLint model_uniform, GLint object_style_uniform, GLint object_color_uniform) {
 		this->window = window;
 		this->model_uniform = model_uniform;
 		this->object_style_uniform = object_style_uniform;
 		this->object_color_uniform = object_color_uniform;
+	}
+
+	void linkSceneObjects(SceneObject *map, SceneObject *board, SceneObject *cat, SceneObject *plane,
+		SceneObject *antivirusSceneObject) {
+		this->map = map;
+		this->board = board;
+		this->cat = cat;
+		this->plane = plane;
+		this->antivirusSceneObject = antivirusSceneObject;
+
+		availableDefenseUnits.clear();
+		availableDefenseUnits.push_back(AntiVirusUnit(antivirusSceneObject));
+		availableDefenseUnits.push_back(AntiVirusUnit(antivirusSceneObject));
+		availableDefenseUnits.push_back(AntiVirusUnit(antivirusSceneObject));
+		availableDefenseUnits.push_back(AntiVirusUnit(antivirusSceneObject));
+		availableDefenseUnits.push_back(AntiVirusUnit(antivirusSceneObject));
+		availableDefenseUnits.push_back(AntiVirusUnit(antivirusSceneObject));
+		availableDefenseUnits.push_back(AntiVirusUnit(antivirusSceneObject));
+		availableDefenseUnits.push_back(AntiVirusUnit(antivirusSceneObject));
+		availableDefenseUnits.push_back(AntiVirusUnit(antivirusSceneObject));
+		availableDefenseUnits.push_back(AntiVirusUnit(antivirusSceneObject));
+		availableDefenseUnits.push_back(AntiVirusUnit(antivirusSceneObject));
+		availableDefenseUnits.push_back(AntiVirusUnit(antivirusSceneObject));
 	}
 
 	// MARK: Stage Management
@@ -227,11 +251,28 @@ class NetGuard {
 	void handleMouseClick(GLFWwindow *window, int button, int action, int mods) {
 		if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
 			isLeftMouseButtonPressed = true;
+
+			if (currentStage == NetGuardStage::defenseDeployment) {
+				defenseDeploymentAddUnit();
+			}
 		}
 
 		if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
 			isLeftMouseButtonPressed = false;
 		}
+	}
+	
+	// MARK: Path definition
+	bool isPositionInPath(int x, int z) {
+		return (z % 2 != 0 && abs(x) != 6 && !(x > 0 && z == 5)) || (x == 5 && (z == 2 || z == -2)) ||
+		       (x == -5 && (abs(z) == 4 || z == 0)) || (x == 0 && z == 6) || (x == 5 && z == -6);
+	}
+
+	vector<vec2> getPathPoints() {
+		vector<vec2> points = {{5.5f, -5.5f}, {5.5f, -4.5f},  {-4.5f, -4.5f}, {-4.5f, -2.5f}, {5.5f, -2.5f},
+		                       {5.5f, -0.5f}, {-4.5f, -0.5f}, {-4.5f, 1.5f},  {5.5f, 1.5f},   {5.5f, 3.5f},
+		                       {-4.5f, 3.5f}, {-4.5f, 5.5f},  {0.5f, 5.5f},   {0.5f, 6.5f}};
+		return points;
 	}
 
 	// MARK: Onboarding
@@ -246,11 +287,12 @@ class NetGuard {
 			camera.position.z += -camera.position.x / 2 * deltaTime;
 		}
 	}
-	// MARK: Defense Deployment
 
+	// MARK: Defense Deployment
 	void defenseDeploymentUpdate() {
-		camera.position = vec4(0.0f, 20.0f, 0.0f, 1.0f);
+		camera.position = vec4(4.0f, 20.0f, 0.0f, 1.0f);
 		camera.mode = CameraMode::TopDown;
+		selectedPosition = vec2(INFINITY, INFINITY); 
 
 		// Handle grid selection logic
 		double cursorX, cursorY;
@@ -277,22 +319,44 @@ class NetGuard {
 			}
 		}
 
-		if (isLeftMouseButtonPressed) {
+		// Place available defense units
+		int gridSize = 4, startX = 9, startZ = -6, idx = 0;
+
+		for (int j = 0; j < gridSize && idx < availableDefenseUnits.size(); ++j) {
+			for (int i = 0; i < gridSize && idx < availableDefenseUnits.size(); ++i, ++idx) {
+				auto &availableDU = availableDefenseUnits[idx];
+				if (availableDU.sceneObject != nullptr) {
+					float posX = startX + i + 0.5f;
+					float posZ = startZ + j + 0.5f;
+					availableDU.sceneObject->position = vec4(posX, gridHeight + 0.6f, posZ, 1.0f);
+					availableDU.sceneObject->drawObject(model_uniform, object_style_uniform, object_color_uniform);
+				}
+			}
+		}
+	}
+
+	void defenseDeploymentAddUnit() {
+		if (selectedPosition.x != INFINITY && selectedPosition.y != INFINITY) {
 			if (isPositionInPath(selectedPosition.x - 0.5f, selectedPosition.y - 0.5f)) {
 				printf("X: %f, Y: %f\n", selectedPosition.x, selectedPosition.y);
 				return; // Cannot place defense unit in path
 			}
+
 			for (const auto &defenseUnit : defenseUnits) {
 				if (defenseUnit.position.x == selectedPosition.x &&
 				    defenseUnit.position.y == selectedPosition.y) {
 					return; // Position already occupied
 				}
 			}
-			AntiVirusUnit newUnit(vec4(selectedPosition.x, gridHeight + .6f, selectedPosition.y, 1.0f),
-			                      vec4(0.0f, 1.0f, 0.0f, 1.0f));
 
-			newUnit.sceneObject = antivirusSceneObject;
-			defenseUnits.push_back(newUnit);
+			if (!availableDefenseUnits.empty()) {
+				GameUnit newUnit = availableDefenseUnits.back();
+				availableDefenseUnits.pop_back();
+				newUnit.position = vec4(selectedPosition.x, gridHeight + .6f, selectedPosition.y, 1.0f);
+				defenseUnits.push_back(newUnit);
+			} else {
+				printf("No available defense units to place.\n");
+			}
 		}
 	}
 
@@ -308,12 +372,13 @@ class NetGuard {
 				vec4 pathColor = vec4(0.0f, 0.0f, 0.0f, 1.0f);
 				vec4 availablePositionColor = vec4(0.2f, 0.2f, 0.2f, 1.0f);
 				vec4 selectedPositionColor = vec4(0.3f, 0.5f, 0.3f, 1.0f);
+				vec4 notPermitedColor = vec4(1.0f, 0.0f, 0.0f, 1.0f);
 
 				if (isPositionInPath(x, z)) {
 					plane->color = pathColor;
 				} else {
 					if (selectedPosition.x == centerX && selectedPosition.y == centerZ) {
-						plane->color = selectedPositionColor;
+						plane->color = availableDefenseUnits.empty() ? notPermitedColor : selectedPositionColor;
 					} else {
 						plane->color = availablePositionColor;
 					}
@@ -324,19 +389,7 @@ class NetGuard {
 		}
 	}
 
-	bool isPositionInPath(int x, int z) {
-		return (z % 2 != 0 && abs(x) != 6 && !(x > 0 && z == 5)) || (x == 5 && (z == 2 || z == -2)) ||
-		       (x == -5 && (abs(z) == 4 || z == 0)) || (x == 0 && z == 6) || (x == 5 && z == -6);
-	}
-
-	vector<vec2> getPathPoints() {
-		vector<vec2> points = {{5.5f, -5.5f}, {5.5f, -4.5f},  {-4.5f, -4.5f}, {-4.5f, -2.5f}, {5.5f, -2.5f},
-		                       {5.5f, -0.5f}, {-4.5f, -0.5f}, {-4.5f, 1.5f},  {5.5f, 1.5f},   {5.5f, 3.5f},
-		                       {-4.5f, 3.5f}, {-4.5f, 5.5f},  {0.5f, 5.5f},   {0.5f, 6.5f}};
-		return points;
-	}
-	
-
+	// MARK: Invasion Phase
 	void updateInvasionPhase(float deltaTime) {
 		static int currentTargetIndex = 0;
 		vector<vec2> targets = getPathPoints();
