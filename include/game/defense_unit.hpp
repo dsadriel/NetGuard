@@ -15,10 +15,10 @@ class GameUnit {
 		int targetIndex;
 		vec2 target;
 
-
-
-	GameUnit(vec4 pos, vec4 dir) : position(pos), rotation(dir), sceneObject(nullptr) {};
 	GameUnit() : position(vec4(0.0f)), rotation(vec4(0.0f, 0.0f, 1.0f, 0.0f)), sceneObject(nullptr) {}
+	GameUnit(vec4 pos, SceneObject* obj) : position(pos), rotation(vec4(0.0f, 0.0f, 1.0f, 0.0f)), sceneObject(obj) {}
+	GameUnit(vec4 pos, vec4 rot) : position(pos), rotation(rot), sceneObject(nullptr) {}
+	GameUnit(SceneObject* obj) : position(vec4(INFINITY)), rotation(vec4(0.0f, 0.0f, 1.0f, 0.0f)), sceneObject(obj) {}
 
 	virtual void defenseAction() {}
 	virtual void attackAction() {}
@@ -27,8 +27,8 @@ class GameUnit {
 class AntiVirusUnit : public GameUnit {
 	public:
 	
-	AntiVirusUnit(vec4 pos, vec4 dir) : GameUnit(pos, dir) {}
 	AntiVirusUnit() : GameUnit() {}
+	AntiVirusUnit(SceneObject* obj) : GameUnit(obj) {}
 
 	void defenseAction() override {
 		// Implement specific action for AntiVirusUnit
