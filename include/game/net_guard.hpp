@@ -84,7 +84,7 @@ class NetGuard {
 	}
 
 	void linkSceneObjects(SceneObject *map, SceneObject *board, SceneObject *cat, SceneObject *plane,
-		SceneObject *antivirusSceneObject) {
+	                      SceneObject *antivirusSceneObject) {
 		this->map = map;
 		this->board = board;
 		this->cat = cat;
@@ -196,8 +196,7 @@ class NetGuard {
 
 		for (auto &defenseUnit : defenseUnits) {
 			if (defenseUnit.sceneObject != nullptr) {
-				defenseUnit.sceneObject->position = defenseUnit.position;
-				defenseUnit.sceneObject->drawObject(model_uniform, object_style_uniform, object_color_uniform);
+				defenseUnit.draw(model_uniform, object_style_uniform, object_color_uniform);
 			}
 		}
 
@@ -261,7 +260,7 @@ class NetGuard {
 			isLeftMouseButtonPressed = false;
 		}
 	}
-	
+
 	// MARK: Path definition
 	bool isPositionInPath(int x, int z) {
 		return (z % 2 != 0 && abs(x) != 6 && !(x > 0 && z == 5)) || (x == 5 && (z == 2 || z == -2)) ||
@@ -292,7 +291,7 @@ class NetGuard {
 	void defenseDeploymentUpdate() {
 		camera.position = vec4(4.0f, 20.0f, 0.0f, 1.0f);
 		camera.mode = CameraMode::TopDown;
-		selectedPosition = vec2(INFINITY, INFINITY); 
+		selectedPosition = vec2(INFINITY, INFINITY);
 
 		// Handle grid selection logic
 		double cursorX, cursorY;
@@ -305,31 +304,13 @@ class NetGuard {
 				float centerX = x + 0.5f;
 				float centerZ = z + 0.5f;
 
-				float scaleX = 0.9f;
-				float scaleZ = 0.9f;
+				Plane planeAbs = Plane(vec4(centerX - 0.5f, 1.0f, centerZ - 0.5f, 1.0f),
+				                       vec4(centerX - 0.5f, 1.0f, centerZ + 0.5f, 1.0f),
+				                       vec4(centerX + 0.5f, 1.0f, centerZ + 0.5f, 1.0f),
+				                       vec4(centerX + 0.5f, 1.0f, centerZ - 0.5f, 1.0f));
 
-				Plane planeAbs = Plane(vec4(centerX - 0.5f * scaleX, 1.0f, centerZ - 0.5f * scaleZ, 1.0f),
-				                       vec4(centerX - 0.5f * scaleX, 1.0f, centerZ + 0.5f * scaleZ, 1.0f),
-				                       vec4(centerX + 0.5f * scaleX, 1.0f, centerZ + 0.5f * scaleZ, 1.0f),
-				                       vec4(centerX + 0.5f * scaleX, 1.0f, centerZ - 0.5f * scaleZ, 1.0f));
-
-				if (checkCollision(pickingRay, planeAbs)) {
+				if (checkCollision(pickingRay, planeAbs) && !isPositionInPath(x, z)) {
 					selectedPosition = vec2(centerX, centerZ);
-				}
-			}
-		}
-
-		// Place available defense units
-		int gridSize = 4, startX = 9, startZ = -6, idx = 0;
-
-		for (int j = 0; j < gridSize && idx < availableDefenseUnits.size(); ++j) {
-			for (int i = 0; i < gridSize && idx < availableDefenseUnits.size(); ++i, ++idx) {
-				auto &availableDU = availableDefenseUnits[idx];
-				if (availableDU.sceneObject != nullptr) {
-					float posX = startX + i + 0.5f;
-					float posZ = startZ + j + 0.5f;
-					availableDU.sceneObject->position = vec4(posX, gridHeight + 0.6f, posZ, 1.0f);
-					availableDU.sceneObject->drawObject(model_uniform, object_style_uniform, object_color_uniform);
 				}
 			}
 		}
@@ -343,8 +324,7 @@ class NetGuard {
 			}
 
 			for (const auto &defenseUnit : defenseUnits) {
-				if (defenseUnit.position.x == selectedPosition.x &&
-				    defenseUnit.position.y == selectedPosition.y) {
+				if (defenseUnit.position.x == selectedPosition.x && defenseUnit.position.y == selectedPosition.y) {
 					return; // Position already occupied
 				}
 			}
@@ -387,6 +367,39 @@ class NetGuard {
 				plane->drawObject(model_uniform, object_style_uniform, object_color_uniform);
 			}
 		}
+
+		// Draw available defense units
+		int gridSize = 4, startX = 9, startZ = -6, idx = 0;
+
+		int availableCount = availableDefenseUnits.size();
+
+		// If there are available defense units, draw them in the grid
+		if (availableCount > 0) {
+			// If selected position is valid, draw the last available defense unit there
+			if (selectedPosition.x != INFINITY && selectedPosition.y != INFINITY) {
+				if (availableDefenseUnits.back().sceneObject != nullptr) {
+					availableDefenseUnits.back().position =
+					    vec4(selectedPosition.x, gridHeight + 0.6f, selectedPosition.y, 1.0f);
+					availableDefenseUnits.back().draw(model_uniform, object_style_uniform, object_color_uniform);
+				}
+
+				// Decrease the count of available units, so it won't be drawn again
+				availableCount--;
+			}
+
+			// Draw the available defense units in a grid
+			for (int j = 0; j < gridSize && idx < availableCount; ++j) {
+				for (int i = 0; i < gridSize && idx < availableCount; ++i, ++idx) {
+					auto &availableDU = availableDefenseUnits[idx];
+					if (availableDU.sceneObject != nullptr) {
+						float posX = startX + i + 0.5f;
+						float posZ = startZ + j + 0.5f;
+						availableDU.position = vec4(posX, 0.6f, posZ, 1.0f);
+						availableDU.draw(model_uniform, object_style_uniform, object_color_uniform);
+					}
+				}
+			}
+		}
 	}
 
 	// MARK: Invasion Phase
@@ -409,10 +422,10 @@ class NetGuard {
 
 				vec2 toTarget = target - currentPosition;
 				vec2 direction = length(toTarget) > 0.0001f ? normalize(toTarget) : vec2(0.0f, 0.0f);
-				
+
 				vec2 newPos = currentPosition + direction * 0.5f * deltaTime;
 				invasionUnit.position = vec4(newPos.x, invasionUnit.position.y, newPos.y, 1.0f);
-			
+
 				float angle = atan2(direction.x, direction.y);
 				invasionUnit.rotation = vec4(0.0f, angle, 0.0f, 1.0f);
 
