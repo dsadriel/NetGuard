@@ -15,13 +15,21 @@ class GameUnit {
 		int targetIndex;
 		vec2 target;
 
-	GameUnit() : position(vec4(0.0f)), rotation(vec4(0.0f, 0.0f, 1.0f, 0.0f)), sceneObject(nullptr) {}
-	GameUnit(vec4 pos, SceneObject* obj) : position(pos), rotation(vec4(0.0f, 0.0f, 1.0f, 0.0f)), sceneObject(obj) {}
+	GameUnit() : position(vec4(0.0f)), rotation(vec4(0.0f, 0.0f, 0.0f, 0.0f)), sceneObject(nullptr) {}
+	GameUnit(vec4 pos, SceneObject* obj) : position(pos), rotation(vec4(0.0f, 0.0f, 0.0f, 0.0f)), sceneObject(obj) {}
 	GameUnit(vec4 pos, vec4 rot) : position(pos), rotation(rot), sceneObject(nullptr) {}
-	GameUnit(SceneObject* obj) : position(vec4(INFINITY)), rotation(vec4(0.0f, 0.0f, 1.0f, 0.0f)), sceneObject(obj) {}
+	GameUnit(SceneObject* obj) : position(vec4(INFINITY)), rotation(vec4(0.0f, 0.0f, 0.0f, 0.0f)), sceneObject(obj) {}
 
 	virtual void defenseAction() {}
 	virtual void attackAction() {}
+
+	virtual void draw(GLint model_uniform, GLint object_style_uniform, GLint object_color_uniform) {
+		if (sceneObject) {
+			sceneObject->position = position;
+			sceneObject->rotation = rotation;
+			sceneObject->drawObject(model_uniform, object_style_uniform, object_color_uniform);
+		}
+	}
 };
 
 class AntiVirusUnit : public GameUnit {
