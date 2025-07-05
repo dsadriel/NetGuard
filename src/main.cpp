@@ -127,22 +127,18 @@ int main() {
 	ObjModel mapModel("../../assets/models/map.obj");
 	ComputeNormals(&mapModel);
 	BuildTrianglesAndAddToVirtualScene(&mapModel);
-	g_NetGuard.map = &g_VirtualScene["map"];
 
 	ObjModel boardModel("../../assets/models/board.obj");
 	ComputeNormals(&boardModel);
 	BuildTrianglesAndAddToVirtualScene(&boardModel);
-	g_NetGuard.board = &g_VirtualScene["board"];
 
 	ObjModel neoCatModel("../../assets/models/neocat/neocat.obj");
 	ComputeNormals(&neoCatModel);
 	BuildTrianglesAndAddToVirtualScene(&neoCatModel);
-	g_NetGuard.cat = &g_VirtualScene["neocat"];
 
 	ObjModel plane1x1Model("../../assets/models/plane1x1.obj");
 	ComputeNormals(&plane1x1Model);
 	BuildTrianglesAndAddToVirtualScene(&plane1x1Model);
-	g_NetGuard.plane = &g_VirtualScene["plane1x1"];
 
 	ObjModel skyBoxModel("../../assets/models/skybox.obj");
 	ComputeNormals(&skyBoxModel);
@@ -151,7 +147,10 @@ int main() {
 	ObjModel antivirusModel("../../assets/models/antivirus/antivirus.obj");
 	ComputeNormals(&antivirusModel);
 	BuildTrianglesAndAddToVirtualScene(&antivirusModel);
-	g_NetGuard.antivirusSceneObject = &g_VirtualScene["antivirus"];
+
+	// Link all scene objects to NetGuard
+	g_NetGuard.linkSceneObjects(&g_VirtualScene["map"], &g_VirtualScene["board"], &g_VirtualScene["neocat"], 
+		&g_VirtualScene["plane1x1"], &g_VirtualScene["antivirus"]);
 
 
 	// ==================================================
@@ -168,7 +167,6 @@ int main() {
 	g_VirtualScene["board"].object_style = FLAT_TEXTURED;
 	g_VirtualScene["board"].scale = glm::vec3(1.0f, 1.0f, 1.0f);
 	g_VirtualScene["board"].position = glm::vec4(0.0f, 0.01f, 0.0f, 1.0f);
-	g_NetGuard.board = &g_VirtualScene["board"];
 
 	g_VirtualScene["antivirus"].applyTexture("../../assets/textures/antivirus.png");
 	g_VirtualScene["antivirus"].scale = glm::vec3(0.6f, 0.6f, 0.6f);
