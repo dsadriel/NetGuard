@@ -324,7 +324,8 @@ class NetGuard {
 			}
 
 			for (const auto &defenseUnit : defenseUnits) {
-				if (defenseUnit.position.x == selectedPosition.x && defenseUnit.position.y == selectedPosition.y) {
+				if (defenseUnit.position.x == selectedPosition.x && defenseUnit.position.z == selectedPosition.y) {
+					printf("Position already occupied by another defense unit.\n");
 					return; // Position already occupied
 				}
 			}
