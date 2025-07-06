@@ -42,6 +42,7 @@ class Camera {
 		case CameraMode::LookAt:
 			view_vector_ = target - position;
 			up_vec_ = up_vector;
+			position.w = 1.0f; // Ensure position is a vec4 with w = 1.0
 			return Matrix_Camera_View(position, view_vector_, up_vec_);
 
 		case CameraMode::TopDown:
