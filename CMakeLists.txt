@@ -12,6 +12,7 @@ set(SOURCES
   src/utils/stb_image.cpp
   src/core/shader_loader.cpp
   src/input/mouse_keyboard_callbacks.cpp
+  src/input/window_callbacks.cpp
   src/matrices.cpp
   src/utils/obj_loader_utils.cpp
   include/external/tinyObjLoader/tiny_obj_loader.cpp

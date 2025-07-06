@@ -11,9 +11,11 @@
 
 #include "shader_loader.hpp"
 #include "scene.hpp"
+#include "globals.hpp"
 #include "utils/text_rendering.hpp"
 #include "utils/model_utils.hpp"
 #include "input/mouse_keyboard_callbacks.hpp"
+#include "input/window_callbacks.hpp"
 #include "matrices.hpp"
 #include "game/net_guard.hpp"
 #include "utils/obj_loader_utils.hpp"
@@ -28,7 +30,13 @@ using namespace std;
 
 NetGuard g_NetGuard = NetGuard();
 map<string, SceneObject> g_VirtualScene;
+// Framebuffer size (actual pixels)
+float g_ScreenWidth = 1024.0f;
+float g_ScreenHeight = 768.0f;
 float g_ScreenRatio = 1024.0f / 768.0f;
+// Window size (logical coordinates)
+float g_WindowWidth = 1024.0f;
+float g_WindowHeight = 768.0f;
 bool g_LeftMouseButtonPressed = false;
 float g_MouseSensitivity = 0.005f;
 double g_LastCursorPosX, g_LastCursorPosY;
@@ -78,9 +86,12 @@ int main() {
 	glfwSetMouseButtonCallback(window, MouseButtonCallback);
 	// glfwSetScrollCallback(window, ScrollCallback);
 
-	// glfwSetFramebufferSizeCallback(window, FramebufferSizeCallback);
+	glfwSetFramebufferSizeCallback(window, FramebufferSizeCallback);
+	glfwSetWindowSizeCallback(window, WindowSizeCallback);
 	glfwSetWindowSize(window, 1024, 768);
 	glfwMakeContextCurrent(window);
+
+	initializeWindowDimensions(window);
 
 	gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 
