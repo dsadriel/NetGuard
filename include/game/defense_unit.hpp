@@ -23,11 +23,11 @@ class GameUnit {
 	virtual void defenseAction() {}
 	virtual void attackAction() {}
 
-	virtual void draw(GLint model_uniform, GLint object_style_uniform, GLint object_color_uniform) {
+	virtual void draw(GLint model_uniform, GLint object_style_uniform, GLint object_color_uniform, GLint shading_mode_uniform ) {
 		if (sceneObject) {
 			sceneObject->position = position;
 			sceneObject->rotation = rotation;
-			sceneObject->drawObject(model_uniform, object_style_uniform, object_color_uniform);
+			sceneObject->drawObject(model_uniform, object_style_uniform, object_color_uniform, shading_mode_uniform);
 		}
 	}
 };

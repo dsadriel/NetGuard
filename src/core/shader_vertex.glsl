@@ -19,6 +19,27 @@ out vec4 position_world;
 out vec4 normal;
 out vec2 texture_coordinates;
 out vec4 model_coordinates;
+out vec4 vertex_color;
+
+// Identificador que define qual o estilo do objeto
+#define PLAIN_COLOR 0x00
+#define TEXTURED 0x10
+#define MTL_TEXTURE 0x11
+#define FLAT_TEXTURED 0x12
+#define PLAIN_TEXTURED 0x13
+uniform int object_style;
+
+// Identificador que define a cor do objeto, caso seja o estilo de color
+uniform vec4 object_color;
+
+// Variáveis para acesso das imagens de textura
+uniform sampler2D TextureImage0;
+uniform sampler2D TextureImage1;
+uniform sampler2D TextureImage2;
+
+#define SHADING_PHONG   0 
+#define SHADING_GOURAUD 1 
+uniform int shading_mode;
 
 void main()
 {
@@ -60,5 +81,77 @@ void main()
     // Veja slides 123-151 do documento Aula_07_Transformacoes_Geometricas_3D.pdf.
     normal = inverse(transpose(model)) * normal_coefficients;
     normal.w = 0.0;
+
+
+    if(shading_mode == SHADING_GOURAUD)
+    {
+        vec4 p = position_world;
+        vec4 origin=vec4(0.,0.,0.,1.);
+        vec4 camera_position=inverse(view)*origin;
+        
+        // Normal do fragmento atual, interpolada pelo rasterizador a partir das
+        // normais de cada vértice.
+        vec4 n=normalize(normal);
+        
+        // Vetor que define o sentido da fonte de luz em relação ao ponto atual.
+        vec4 l=normalize(camera_position - p);
+        
+        // Vetor que define o sentido da câmera em relação ao ponto atual.
+        vec4 v=normalize(camera_position-position_world);
+        
+        // Vetor que define o sentido da reflexão especular ideal.
+        vec4 r=-l+2.*n*dot(n,l);
+        
+        // Parâmetros que definem as propriedades espectrais da superfície
+        vec3 Kd=vec3(.2,.2,.2);// Refletância difusa
+        vec3 Ks=vec3(.3,.3,.3);;// Refletância especular
+        vec3 Ka=vec3(0.,0.,0.);;// Refletância ambiente
+        float q=20.;// Expoente especular para o modelo de iluminação de Phong
+        
+        if(object_style==MTL_TEXTURE)
+        {
+            // Coordenadas de textura U e V
+            float U = texture_coordinates.x;
+            float V = texture_coordinates.y;
+            
+            Kd=texture(TextureImage0,vec2(U,V)).rgb;
+            Ka=Kd/2;
+        } else if (object_style==FLAT_TEXTURED) {
+            // Coordenadas de textura U e V
+            float U = fract(model_coordinates.x / 2.0);
+            float V = fract(model_coordinates.z / 2.0);
+            
+            Kd=texture(TextureImage0,vec2(U,V)).rgb;
+            Ka=Kd/10;
+        } else if(object_style==PLAIN_COLOR) {
+            Kd=object_color.rgb;
+            Ka=Kd/2;
+        }
+
+        
+        // Espectro da fonte de iluminação
+        vec3 I=vec3(1.,1.,1.);
+
+        // Espectro da luz ambiente
+        vec3 Ia=vec3(.2,.2,.2);
+        
+        // Termo difuso utilizando a lei dos cossenos de Lambert  (slide 131)
+        vec3 lambert_diffuse_term=Kd*I*max(0,dot(n,l));
+        
+        // Termo ambiente  (slide 131)
+        vec3 ambient_term=Ka*Ia;
+
+        vec4 halfVector = normalize(v + l);
+        vec3 blinnPhong_specular_term = Ks * I * pow(max(0, dot(n, halfVector)), q); //o termo especular de Blinn-Phong
+        vertex_color.a=1;
+        
+        vertex_color.rgb=lambert_diffuse_term+ambient_term+blinnPhong_specular_term;
+        
+        vertex_color.rgb=pow(vertex_color.rgb,vec3(1.,1.,1.)/2.2);
+    }
+    else if(shading_mode == SHADING_PHONG)
+    {
+        vertex_color = vec4(0.0, 0.0, 0.0, 1.0); 
+    }
 }
 

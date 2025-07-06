@@ -43,6 +43,12 @@ GLint g_model_uniform;
 GLint g_view_uniform;
 GLint g_projection_uniform;
 GLint g_object_id_uniform;
+GLint g_shading_mode_uniform;
+GLint g_object_style_uniform;
+GLint g_object_color_uniform;
+GLint g_texture0_uniform;
+GLint g_texture1_uniform;
+GLint g_texture2_uniform;
 
 // ==================================================
 // MARK: Programa Principal
@@ -93,17 +99,7 @@ int main() {
 	LoadShadersFromFiles();
 
 	TextRendering_Init();
-
-	// GLint model_uniform = glGetUniformLocation(g_GpuProgramID, "model"); // Variável da matriz "model"
-	GLint view_uniform =
-	    glGetUniformLocation(g_GpuProgramID, "view"); // Variável da matriz "view" em shader_vertex.glsl
-	GLint projection_uniform =
-	    glGetUniformLocation(g_GpuProgramID, "projection"); // Variável da matriz "projection" em shader_vertex.glsl
-	GLint object_style_uniform = glGetUniformLocation(g_GpuProgramID, "object_style");
-	GLint object_color_uniform = glGetUniformLocation(g_GpuProgramID, "object_color");
-	GLint texture0_uniform = glGetUniformLocation(g_GpuProgramID, "TextureImage0");
-	GLint texture1_uniform = glGetUniformLocation(g_GpuProgramID, "TextureImage1");
-	GLint texture2_uniform = glGetUniformLocation(g_GpuProgramID, "TextureImage2");
+	
 
 	// Habilitamos o Z-buffer. Veja slides 104-116 do documento Aula_09_Projecoes.pdf.
 	glEnable(GL_DEPTH_TEST);
@@ -162,26 +158,30 @@ int main() {
 
 	g_VirtualScene["map"].applyTexture("../../assets/textures/grid.png");
 	g_VirtualScene["map"].object_style = FLAT_TEXTURED;
+	g_VirtualScene["map"].shading_mode = SHADING_PHONG;
 
 	g_VirtualScene["board"].applyTexture("../../assets/textures/grid.png");
 	g_VirtualScene["board"].object_style = FLAT_TEXTURED;
 	g_VirtualScene["board"].scale = glm::vec3(1.0f, 1.0f, 1.0f);
 	g_VirtualScene["board"].position = glm::vec4(0.0f, 0.01f, 0.0f, 1.0f);
+	g_VirtualScene["board"].shading_mode = SHADING_PHONG;
 
 	g_VirtualScene["antivirus"].applyTexture("../../assets/textures/antivirus.png");
 	g_VirtualScene["antivirus"].scale = glm::vec3(0.6f, 0.6f, 0.6f);
+	g_VirtualScene["antivirus"].shading_mode = SHADING_GOURAUD;
+
 
 	g_VirtualScene["skybox"].applyTexture("../../assets/textures/skybox.png");
 	g_VirtualScene["skybox"].object_style = PLAIN_TEXTURED;
 
 	// Configura os uniforms das texturas
 	glUseProgram(g_GpuProgramID);
-	glUniform1i(texture0_uniform, 0);
-	glUniform1i(texture1_uniform, 1);
-	glUniform1i(texture2_uniform, 2);
+	glUniform1i(g_texture0_uniform, 0);
+	glUniform1i(g_texture1_uniform, 1);
+	glUniform1i(g_texture2_uniform, 2);
 
 	// Configura a instância do NetGuard
-	g_NetGuard.link(window, g_model_uniform, object_style_uniform, object_color_uniform);
+	g_NetGuard.link(window, g_model_uniform, g_object_style_uniform, g_object_color_uniform, g_shading_mode_uniform);
 
 	// ==================================================
 	// MARK: Loop Principal
@@ -201,8 +201,8 @@ int main() {
 		glm::mat4 view = g_NetGuard.camera.getViewMatrix();
 		glm::mat4 projection = g_NetGuard.camera.getProjectionMatrix(g_ScreenRatio);
 
-		glUniformMatrix4fv(view_uniform, 1, GL_FALSE, glm::value_ptr(view));
-		glUniformMatrix4fv(projection_uniform, 1, GL_FALSE, glm::value_ptr(projection));
+		glUniformMatrix4fv(g_view_uniform, 1, GL_FALSE, glm::value_ptr(view));
+		glUniformMatrix4fv(g_projection_uniform, 1, GL_FALSE, glm::value_ptr(projection));
 
 		// ==================================================
 		// MARK: Atualiza e desenha o jogo
@@ -211,7 +211,7 @@ int main() {
 		// Desenha o skybox primeiro (sempre atrás de tudo)
 		glDepthMask(GL_FALSE); // Não escreve no depth buffer
 		g_VirtualScene["skybox"].position = glm::vec4(g_NetGuard.camera.position.x, g_NetGuard.camera.position.y, g_NetGuard.camera.position.z, 1.0f);
-		g_VirtualScene["skybox"].drawObject(g_model_uniform, object_style_uniform, object_color_uniform);
+		g_VirtualScene["skybox"].drawObject(g_model_uniform, g_object_style_uniform, g_object_color_uniform, g_shading_mode_uniform);
 		glDepthMask(GL_TRUE); // Volta a escrever no depth buffer
 
 

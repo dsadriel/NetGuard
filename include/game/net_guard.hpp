@@ -49,6 +49,7 @@ class NetGuard {
 	GLint model_uniform;
 	GLint object_style_uniform;
 	GLint object_color_uniform;
+	GLint shading_mode_uniform;
 
 	bool isLeftMouseButtonPressed = false;
 
@@ -76,11 +77,12 @@ class NetGuard {
 		playerLives = 3;
 	}
 
-	void link(GLFWwindow *window, GLint model_uniform, GLint object_style_uniform, GLint object_color_uniform) {
+	void link(GLFWwindow *window, GLint model_uniform, GLint object_style_uniform, GLint object_color_uniform, GLint shading_mode_uniform) {
 		this->window = window;
 		this->model_uniform = model_uniform;
 		this->object_style_uniform = object_style_uniform;
 		this->object_color_uniform = object_color_uniform;
+		this->shading_mode_uniform = shading_mode_uniform;
 	}
 
 	void linkSceneObjects(SceneObject *map, SceneObject *board, SceneObject *cat, SceneObject *plane,
@@ -191,12 +193,12 @@ class NetGuard {
 
 	// MARK: Draw
 	void draw() {
-		map->drawObject(model_uniform, object_style_uniform, object_color_uniform);
-		board->drawObject(model_uniform, object_style_uniform, object_color_uniform);
+		map->drawObject(model_uniform, object_style_uniform, object_color_uniform, shading_mode_uniform);
+		board->drawObject(model_uniform, object_style_uniform, object_color_uniform, shading_mode_uniform);
 
 		for (auto &defenseUnit : defenseUnits) {
 			if (defenseUnit.sceneObject != nullptr) {
-				defenseUnit.draw(model_uniform, object_style_uniform, object_color_uniform);
+				defenseUnit.draw(model_uniform, object_style_uniform, object_color_uniform, shading_mode_uniform);
 			}
 		}
 
@@ -365,7 +367,7 @@ class NetGuard {
 					}
 				}
 
-				plane->drawObject(model_uniform, object_style_uniform, object_color_uniform);
+				plane->drawObject(model_uniform, object_style_uniform, object_color_uniform, shading_mode_uniform);
 			}
 		}
 
@@ -381,7 +383,7 @@ class NetGuard {
 				if (availableDefenseUnits.back().sceneObject != nullptr) {
 					availableDefenseUnits.back().position =
 					    vec4(selectedPosition.x, gridHeight + 0.6f, selectedPosition.y, 1.0f);
-					availableDefenseUnits.back().draw(model_uniform, object_style_uniform, object_color_uniform);
+					availableDefenseUnits.back().draw(model_uniform, object_style_uniform, object_color_uniform, shading_mode_uniform);
 				}
 
 				// Decrease the count of available units, so it won't be drawn again
@@ -396,7 +398,7 @@ class NetGuard {
 						float posX = startX + i + 0.5f;
 						float posZ = startZ + j + 0.5f;
 						availableDU.position = vec4(posX, 0.6f, posZ, 1.0f);
-						availableDU.draw(model_uniform, object_style_uniform, object_color_uniform);
+						availableDU.draw(model_uniform, object_style_uniform, object_color_uniform, shading_mode_uniform);
 					}
 				}
 			}
@@ -439,18 +441,12 @@ class NetGuard {
 	}
 
 	void drawInvasionPhase() {
-		// vector<vec2> targets = getPathPoints();
-		// for (auto &pos : targets) {
-		// 	plane->position = vec4(pos.x, gridHeight + 0.02f, pos.y, 1.0f);
-		// 	plane->color = vec4(0.2f, 0.2f, 0.2f, 1.0f);
-		// 	plane->drawObject(model_uniform, object_style_uniform, object_color_uniform);
-		// }
 
 		for (auto &invasionUnit : invasionUnits) {
 			if (invasionUnit.sceneObject != nullptr) {
 				invasionUnit.sceneObject->position = invasionUnit.position;
 				invasionUnit.sceneObject->rotation = invasionUnit.rotation;
-				invasionUnit.sceneObject->drawObject(model_uniform, object_style_uniform, object_color_uniform);
+				invasionUnit.sceneObject->drawObject(model_uniform, object_style_uniform, object_color_uniform, shading_mode_uniform);
 			}
 		}
 	}

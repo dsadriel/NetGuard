@@ -18,6 +18,14 @@ void LoadShadersFromFiles()
     g_model_uniform      = glGetUniformLocation(g_GpuProgramID, "model"); // Variável da matriz "model"
     g_view_uniform       = glGetUniformLocation(g_GpuProgramID, "view"); // Variável da matriz "view" em shader_vertex.glsl
     g_projection_uniform = glGetUniformLocation(g_GpuProgramID, "projection"); // Variável da matriz "projection" em shader_vertex.glsl
+	g_shading_mode_uniform = glGetUniformLocation(g_GpuProgramID, "shading_mode");
+	g_object_style_uniform = glGetUniformLocation(g_GpuProgramID, "object_style");
+	g_object_color_uniform = glGetUniformLocation(g_GpuProgramID, "object_color");
+	g_texture0_uniform = glGetUniformLocation(g_GpuProgramID, "TextureImage0");
+	g_texture1_uniform = glGetUniformLocation(g_GpuProgramID, "TextureImage1");
+	g_texture2_uniform = glGetUniformLocation(g_GpuProgramID, "TextureImage2");
+
+
 }
 
 GLuint LoadShader_Vertex(const char *filename) {

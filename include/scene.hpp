@@ -18,6 +18,9 @@
 #define FLAT_TEXTURED 0x12
 #define PLAIN_TEXTURED 0x13
 
+#define SHADING_PHONG 0
+#define SHADING_GOURAUD 1
+
 using namespace std;
 using namespace glm;
 
@@ -33,13 +36,15 @@ struct SceneObject {
 	GLuint vertex_array_object_id; // ID do VAO onde estão armazenados os atributos do modelo
 	GLuint texture_id = 0;             // ID da textura
 	GLuint object_style = PLAIN_COLOR;
+
+	int shading_mode = 0; // Por padrão PHONG SHADING == 0, GOURAUD SHADING == 1 
 	vec4 color = vec4(.3f, .5f, .3f, 1.0f);
 
 	vec4 position = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 	vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f);
 	vec3 rotation = glm::vec3(0.0f, 0.0f, 0.0f);
 
-	void drawObject(GLint model_uniform, GLint object_style_uniform, GLint object_color_uniform) {
+	void drawObject(GLint model_uniform, GLint object_style_uniform, GLint object_color_uniform, GLint shading_mode_uniform) {
 		// Construção da matriz Model
 		glm::mat4 model = Matrix_Identity() * Matrix_Translate(position.x, position.y, position.z) *
 		                  Matrix_Rotate_X(rotation.x) * Matrix_Rotate_Y(rotation.y) * Matrix_Rotate_Z(rotation.z) *
@@ -52,6 +57,8 @@ struct SceneObject {
 		glUniform1i(object_style_uniform, object_style);
 
         glUniform4fv(object_color_uniform, 1, value_ptr(color));
+
+		glUniform1i(shading_mode_uniform, shading_mode);
 
 		// Se o objeto tem textura, ativa a textura
 		if ((object_style & TEXTURED) && texture_id != 0) {

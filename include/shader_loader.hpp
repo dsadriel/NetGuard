@@ -14,6 +14,13 @@ extern GLint g_model_uniform;
 extern GLint g_view_uniform;
 extern GLint g_projection_uniform;
 extern GLint g_object_id_uniform;
+extern GLint g_shading_mode_uniform;
+extern GLint g_object_style_uniform;
+extern GLint g_object_color_uniform;
+extern GLint g_texture0_uniform;
+extern GLint g_texture1_uniform;
+extern GLint g_texture2_uniform;
+
 
 void LoadShadersFromFiles();
 GLuint LoadShader_Vertex(const char *filename);
