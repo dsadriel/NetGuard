@@ -14,6 +14,7 @@ in vec4 vertex_color;
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
+uniform vec4 global_light_direction;
 
 // Identificador que define qual o estilo do objeto
 #define PLAIN_COLOR 0x00
@@ -76,7 +77,7 @@ void main()
         vec4 n=normalize(normal);
         
         // Vetor que define o sentido da fonte de luz em relação ao ponto atual.
-        vec4 l=normalize(camera_position-p);
+        vec4 l=normalize(-global_light_direction);
         
         // Vetor que define o sentido da câmera em relação ao ponto atual.
         vec4 v=normalize(camera_position-p);

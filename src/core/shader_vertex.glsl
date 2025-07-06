@@ -10,6 +10,7 @@ layout (location = 2) in vec2 texture_coefficients;
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
+uniform vec4 global_light_direction;
 
 // Atributos de vértice que serão gerados como saída ("out") pelo Vertex Shader.
 // ** Estes serão interpolados pelo rasterizador! ** gerando, assim, valores
@@ -94,7 +95,7 @@ void main()
         vec4 n=normalize(normal);
         
         // Vetor que define o sentido da fonte de luz em relação ao ponto atual.
-        vec4 l=normalize(camera_position - p);
+        vec4 l=normalize(-global_light_direction);
         
         // Vetor que define o sentido da câmera em relação ao ponto atual.
         vec4 v=normalize(camera_position-position_world);

@@ -49,6 +49,7 @@ GLint g_object_color_uniform;
 GLint g_texture0_uniform;
 GLint g_texture1_uniform;
 GLint g_texture2_uniform;
+GLint g_global_light_direction_uniform;
 
 // ==================================================
 // MARK: Programa Principal
@@ -99,7 +100,6 @@ int main() {
 	LoadShadersFromFiles();
 
 	TextRendering_Init();
-	
 
 	// Habilitamos o Z-buffer. Veja slides 104-116 do documento Aula_09_Projecoes.pdf.
 	glEnable(GL_DEPTH_TEST);
@@ -145,9 +145,8 @@ int main() {
 	BuildTrianglesAndAddToVirtualScene(&antivirusModel);
 
 	// Link all scene objects to NetGuard
-	g_NetGuard.linkSceneObjects(&g_VirtualScene["map"], &g_VirtualScene["board"], &g_VirtualScene["neocat"], 
-		&g_VirtualScene["plane1x1"], &g_VirtualScene["antivirus"]);
-
+	g_NetGuard.linkSceneObjects(&g_VirtualScene["map"], &g_VirtualScene["board"], &g_VirtualScene["neocat"],
+	                            &g_VirtualScene["plane1x1"], &g_VirtualScene["antivirus"]);
 
 	// ==================================================
 	// MARK: Carrega texturas
@@ -170,7 +169,6 @@ int main() {
 	g_VirtualScene["antivirus"].scale = glm::vec3(0.6f, 0.6f, 0.6f);
 	g_VirtualScene["antivirus"].shading_mode = SHADING_GOURAUD;
 
-
 	g_VirtualScene["skybox"].applyTexture("../../assets/textures/skybox.png");
 	g_VirtualScene["skybox"].object_style = PLAIN_TEXTURED;
 
@@ -179,6 +177,10 @@ int main() {
 	glUniform1i(g_texture0_uniform, 0);
 	glUniform1i(g_texture1_uniform, 1);
 	glUniform1i(g_texture2_uniform, 2);
+
+	// Define a direção da luz global
+	glm::vec4 globalLightDirection = glm::vec4(0.5f, -1.0f, 0.5f, 0.0f); 
+	glUniform4fv(g_global_light_direction_uniform, 1, glm::value_ptr(globalLightDirection));
 
 	// Configura a instância do NetGuard
 	g_NetGuard.link(window, g_model_uniform, g_object_style_uniform, g_object_color_uniform, g_shading_mode_uniform);
@@ -210,10 +212,11 @@ int main() {
 
 		// Desenha o skybox primeiro (sempre atrás de tudo)
 		glDepthMask(GL_FALSE); // Não escreve no depth buffer
-		g_VirtualScene["skybox"].position = glm::vec4(g_NetGuard.camera.position.x, g_NetGuard.camera.position.y, g_NetGuard.camera.position.z, 1.0f);
-		g_VirtualScene["skybox"].drawObject(g_model_uniform, g_object_style_uniform, g_object_color_uniform, g_shading_mode_uniform);
+		g_VirtualScene["skybox"].position =
+		    glm::vec4(g_NetGuard.camera.position.x, g_NetGuard.camera.position.y, g_NetGuard.camera.position.z, 1.0f);
+		g_VirtualScene["skybox"].drawObject(g_model_uniform, g_object_style_uniform, g_object_color_uniform,
+		                                    g_shading_mode_uniform);
 		glDepthMask(GL_TRUE); // Volta a escrever no depth buffer
-
 
 		g_NetGuard.update(g_DeltaTime);
 

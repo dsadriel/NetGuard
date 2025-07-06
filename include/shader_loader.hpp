@@ -20,6 +20,7 @@ extern GLint g_object_color_uniform;
 extern GLint g_texture0_uniform;
 extern GLint g_texture1_uniform;
 extern GLint g_texture2_uniform;
+extern GLint g_global_light_direction_uniform;
 
 
 void LoadShadersFromFiles();
