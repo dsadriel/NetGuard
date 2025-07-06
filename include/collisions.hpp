@@ -81,6 +81,6 @@ bool checkCollision(Ray ray, Plane plane);
 bool checkCollision(Ray ray, Triangle triangle);
 bool checkCollision(BoundingBox box1, BoundingBox box2);
 bool checkCollision(Sphere sphere, BoundingBox box);
-
+bool checkCollision(Sphere sphere1, Sphere sphere2);
 
 #endif
