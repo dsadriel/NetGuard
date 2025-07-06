@@ -60,19 +60,14 @@ O trabalho foi desenvolvido em colaboração, com as seguintes contribuições p
 
 2.  **Execute o script de compilação e execução:**
 
-    O projeto inclui scripts para automatizar o processo de compilação e execução.
+    No macOS, Linux ou Windows (via terminal), siga os passos abaixo para compilar e executar o projeto manualmente:
 
-    - **No Windows:**
-        Execute o script `build_and_run.bat`. Você pode dar um duplo clique no arquivo ou executá-lo pelo terminal:
-        ```batch
-        .\build_and_run.bat
-        ```
-
-    -   **No macOS ou Linux:**
-        Primeiro, dê permissão de execução ao script e depois rode-o:
-        ```bash
-        chmod +x build_and_run.sh
-        ./build_and_run.sh
-        ```
+    ```bash
+    mkdir build
+    cd build
+    cmake ..
+    make
+    make run
+    ```
     
-    O script se encarregará de criar a pasta de `build`, compilar o código e iniciar o jogo automaticamente.
+    Esses comandos irão criar a pasta `build`, gerar os arquivos de build com o CMake, compilar o projeto e executar o jogo.
