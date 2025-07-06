@@ -67,6 +67,21 @@ class NetGuard {
 	SceneObject *plane = nullptr;
 	SceneObject *antivirusSceneObject = nullptr;
 
+	// Transition variables (Curva de bezier)
+	vec4 bezier_p0_pos = vec4(0.0f);
+    vec4 bezier_p1_pos = vec4(0.0f);
+    vec4 bezier_p2_pos = vec4(0.0f);
+    vec4 bezier_p3_pos = vec4(0.0f);
+
+    vec4 bezier_p0_target = vec4(0.0f); 
+    vec4 bezier_p1_target = vec4(0.0f);
+    vec4 bezier_p2_target = vec4(0.0f);
+    vec4 bezier_p3_target = vec4(0.0f);
+
+    float transition_timer = 0.0f;
+    float transition_duration = 3.0f;
+    bool in_transition = false;
+
   public:
 	Camera camera = Camera(vec4(2.0f, 2.0f, 2.0f, 1.0f), -2.4f, -0.5f);
 
@@ -136,11 +151,37 @@ class NetGuard {
 		}
 	}
 
-	void nexStage() {
+	void nextStage() {
 		switch (currentStage) {
 		case NetGuardStage::onboarding:
+		{
 			currentStage = NetGuardStage::defenseDeployment;
+			vec4 onboardingCurrentPos = camera.position;
+            vec4 onboardingCurrentTarget = camera.target;
+
+            // Posição final
+            vec4 defenseStartPos = vec4(4.0f, 20.0f, 0.0f, 1.0f);
+            // Alvo final (olhando para o centro do tabuleiro)
+            vec4 defenseStartTarget = vec4(0.0f, 0.0f, 0.0f, 1.0f);
+
+            // Realizar ajustes 
+            vec4 p1_pos = onboardingCurrentPos + vec4(-5.0f, 10.0f, -5.0f, 0.0f); 
+            vec4 p2_pos = defenseStartPos + vec4(0.0f, 5.0f, 0.0f, 0.0f);
+
+            // Pontos de controle para o alvo (para onde a câmera está olhando)
+            vec4 p1_target = onboardingCurrentTarget; 
+            vec4 p2_target = defenseStartTarget; 
+
+			// Duração da transição em SEGUNDOS
+            float transition_time = 3.0f; 
+
+            startCameraTransition(
+                onboardingCurrentPos, p1_pos, p2_pos, defenseStartPos,
+                onboardingCurrentTarget, p1_target, p2_target, defenseStartTarget,
+                transition_time
+            );
 			break;
+		}
 		case NetGuardStage::defenseDeployment:
 			currentStage = NetGuardStage::invasionPhase;
 			break;
@@ -164,40 +205,62 @@ class NetGuard {
 
 	void update(float deltaTime) {
 		static int onboardingUpdateStage = 0;
+
+		if (in_transition) 
+		{
+			transition_timer += deltaTime;
+			float t = transition_timer / transition_duration;
+
+			if (t >= 1.0f) 
+			{
+				t = 1.0f;
+				in_transition = false; 
+
+				camera.position = bezier_p3_pos;
+				camera.target = bezier_p3_target;
+			} 
+
+			camera.position = calculateBezierPoint(t, bezier_p0_pos, bezier_p1_pos, bezier_p2_pos, bezier_p3_pos);
+			camera.target = calculateBezierPoint(t, bezier_p0_target, bezier_p1_target, bezier_p2_target, bezier_p3_target);
+			camera.mode = CameraMode::LookAt;
+		}
+
+    else {
 		// Update game logic based on the current stage
 		switch (currentStage) {
-		case NetGuardStage::onboarding:
-			onboardingUpdate(deltaTime, onboardingUpdateStage);
-			break;
-		case NetGuardStage::defenseDeployment:
-			onboardingUpdateStage = 0; // Reset onboarding stage
-			// Handle adding defense units logic
-			defenseDeploymentUpdate();
-			break;
-		case NetGuardStage::invasionPhase:
-			// Handle invasion phase logic
-			camera.mode = CameraMode::Free;
-			updateInvasionPhase(deltaTime);
-			handleMovement(deltaTime);
-			break;
-		case NetGuardStage::invasionPhaseCompleted:
-			// Handle invasion phase completed logic
-			break;
-		case NetGuardStage::gameOver:
-			// Handle game over logic
-			break;
-		case NetGuardStage::gameOverWithVictory:
-			// Handle game over with victory logic
-			break;
-		case NetGuardStage::creditScreen:
-			// Handle credit screen logic
-			break;
+			case NetGuardStage::onboarding:
+				onboardingUpdate(deltaTime, onboardingUpdateStage);
+				break;
+			case NetGuardStage::defenseDeployment:
+				onboardingUpdateStage = 0; // Reset onboarding stage
+				// Handle adding defense units logic
+				defenseDeploymentUpdate();
+				break;
+			case NetGuardStage::invasionPhase:
+				// Handle invasion phase logic
+				camera.mode = CameraMode::Free;
+				updateInvasionPhase(deltaTime);
+				handleMovement(deltaTime);
+				break;
+			case NetGuardStage::invasionPhaseCompleted:
+				// Handle invasion phase completed logic
+				break;
+			case NetGuardStage::gameOver:
+				// Handle game over logic
+				break;
+			case NetGuardStage::gameOverWithVictory:
+				// Handle game over with victory logic
+				break;
+			case NetGuardStage::creditScreen:
+				// Handle credit screen logic
+				break;
+			}
 		}
 
 		// If in debug mode, allow stage change with 'P' key (only trigger once per press)
 		bool currentPKeyState = glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS;
 		if (g_DebugMode && currentPKeyState && !isPKeyPressed) {
-			nexStage();
+			nextStage();
 		}
 		isPKeyPressed = currentPKeyState;
 	}
@@ -443,6 +506,33 @@ class NetGuard {
 		if (defenseUnits.size() > 0)
 			TextRendering_PrintStringC(window, "Press ENTER to start the invasion phase", -0.95f, -0.95f,
 			                           glm::vec3(1.0f, 1.0f, 1.0f), 1.2f);
+	}
+
+	void startCameraTransition(vec4 p0_pos, vec4 p1_pos, vec4 p2_pos, vec4 p3_pos, vec4 p0_target, 
+	vec4 p1_target, vec4 p2_target, vec4 p3_target, float duration)
+	{
+		this->bezier_p0_pos = p0_pos;
+		this->bezier_p1_pos = p1_pos;
+		this->bezier_p2_pos = p2_pos;
+		this->bezier_p3_pos = p3_pos;
+
+		this->bezier_p0_target = p0_target;
+		this->bezier_p1_target = p1_target;
+		this->bezier_p2_target = p2_target;
+		this->bezier_p3_target = p3_target;
+
+		this->transition_duration = duration;
+		this->transition_timer = 0.0f;
+		this->in_transition = true;
+		this->camera.mode = CameraMode::LookAt;
+	}
+
+	vec4 calculateBezierPoint(float t, vec4 p0, vec4 p1, vec4 p2, vec4 p3) {
+    float oneMinusT = 1.0f - t;
+	return 	pow(oneMinusT, 3.0f) * p0 + 
+			(3.0f * t * pow(oneMinusT, 2.0f)) * p1 + 
+			(3.0f * pow(t, 2.0f) * oneMinusT) * p2 + 
+			pow(t, 3.0f) * p3;
 	}
 
 	// MARK: Invasion Phase

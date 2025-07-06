@@ -147,6 +147,7 @@ int main() {
 	ObjModel plane1x1Model("../../assets/models/plane1x1.obj");
 	ComputeNormals(&plane1x1Model);
 	BuildTrianglesAndAddToVirtualScene(&plane1x1Model);
+	g_VirtualScene["plane1x1"].shading_mode = SHADING_GOURAUD;
 
 	ObjModel skyBoxModel("../../assets/models/skybox.obj");
 	ComputeNormals(&skyBoxModel);
@@ -179,7 +180,7 @@ int main() {
 
 	g_VirtualScene["antivirus"].applyTexture("../../assets/textures/antivirus.png");
 	g_VirtualScene["antivirus"].scale = glm::vec3(0.6f, 0.6f, 0.6f);
-	g_VirtualScene["antivirus"].shading_mode = SHADING_GOURAUD;
+	g_VirtualScene["antivirus"].shading_mode = SHADING_PHONG;
 
 	g_VirtualScene["skybox"].applyTexture("../../assets/textures/skybox.png");
 	g_VirtualScene["skybox"].object_style = PLAIN_TEXTURED;
