@@ -345,6 +345,7 @@ class NetGuard {
 
 	void drawDefenseDeploymentScreen() {
 		plane->scale = vec4(.9f, .9f, .9f, .9f);
+		plane->rotation = vec4(0.0f, 0.0f, 0.0f, 1.0f);
 		for (int x = -6; x <= 6; x++) {
 			for (int z = -6; z <= 6; z++) {
 				float centerX = x + 0.5f;
