@@ -2,8 +2,11 @@
 #define COLLISIONS_HPP
 
 #include <external/glm/vec4.hpp>
+#include "matrices.hpp"
+#include <cmath>
 
 using namespace glm;
+using namespace std;
 
 struct Ray {
 	vec4 origin;
@@ -41,7 +44,43 @@ struct Plane {
         : a(point1), b(point2), c(point3), d(point4) {}
 };
 
+struct BoundingBox {
+    vec4 boxSize; // Size/dimensions of the box (width, height, depth)
+    vec4 origin;  // Center point of the box
+
+    BoundingBox() : boxSize(), origin() {}
+
+    BoundingBox(const vec4& minPoint, const vec4& maxPoint) {
+        origin = (minPoint + maxPoint) * 0.5f; // Center point
+        boxSize = maxPoint - minPoint;         // Size dimensions
+    }
+
+    vec4 getAbsoluteMin() const {
+        return origin - boxSize * 0.5f;
+    }
+
+    vec4 getAbsoluteMax() const {
+        return origin + boxSize * 0.5f;
+    }
+
+    vec4 getCenter() const {
+        return origin;
+    }
+};
+
+struct Sphere {
+    vec4 center; 
+    float radius;
+
+    Sphere() : center(), radius(0.0f) {}
+
+    Sphere(const vec4& c, float r) : center(c), radius(r) {}
+};
+
 bool checkCollision(Ray ray, Plane plane);
 bool checkCollision(Ray ray, Triangle triangle);
+bool checkCollision(BoundingBox box1, BoundingBox box2);
+bool checkCollision(Sphere sphere, BoundingBox box);
+
 
 #endif
