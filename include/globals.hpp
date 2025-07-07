@@ -17,5 +17,6 @@ extern float g_ScreenWidth, g_ScreenHeight, g_ScreenRatio, g_MouseSensitivity;
 extern float g_WindowWidth, g_WindowHeight;
 extern bool g_LeftMouseButtonPressed;
 extern double g_LastCursorPosX, g_LastCursorPosY;
+extern bool g_DebugMode;
 
 #endif // GLOBAL_HPP
