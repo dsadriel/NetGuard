@@ -130,15 +130,16 @@ class Camera {
 		changePitch(yoffset);
 	}
 
-	Ray getPickingRay(float screen_width, float screen_height, float cursor_pos_x, float cursor_pos_y) {
-		float x_ndc = (2.0f * cursor_pos_x) / screen_width - 1.0f;
-		float y_ndc = 1.0f - (2.0f * cursor_pos_y) / screen_height;
+	Ray getPickingRay(float window_width, float window_height, float cursor_pos_x, float cursor_pos_y) {
+		float x_ndc = (2.0f * cursor_pos_x) / window_width - 1.0f;
+		float y_ndc = 1.0f - (2.0f * cursor_pos_y) / window_height;
 		float z_ndc = this->nearplane;
 
 		vec4 ray_ndc(x_ndc, y_ndc, z_ndc, 1.0f);
 
 		// Convert NDC to camera coordinates
-		mat4 projection_matrix = getProjectionMatrix(screen_width / screen_height);
+		extern float g_ScreenRatio;
+		mat4 projection_matrix = getProjectionMatrix(g_ScreenRatio);
 		vec4 ray_camera = inverse(projection_matrix) * ray_ndc;
 		vec4 ray_dir_camera = vec4(ray_camera.x, ray_camera.y, -1.0f, 0.0f);
 

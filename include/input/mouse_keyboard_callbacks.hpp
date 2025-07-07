@@ -4,9 +4,9 @@
 #define GLFW_INCLUDE_NONE
 #include <external/GLFW/glfw3.h>
 #include "game/net_guard.hpp"
+#include "globals.hpp"
 
 
-extern float g_ScreenRatio;
 extern bool g_UsePerspectiveProjection;
 extern bool g_LeftMouseButtonPressed;
 extern float g_MovementSpeed;

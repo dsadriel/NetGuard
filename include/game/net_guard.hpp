@@ -5,6 +5,7 @@
 #include "game/camera.hpp"
 #include "game/defense_unit.hpp"
 #include "game/invasion_unit.hpp"
+#include "globals.hpp"
 #include "scene.hpp"
 #define GLFW_INCLUDE_NONE
 #include <external/GLFW/glfw3.h>
@@ -298,7 +299,7 @@ class NetGuard {
 		// Handle grid selection logic
 		double cursorX, cursorY;
 		glfwGetCursorPos(window, &cursorX, &cursorY);
-		Ray pickingRay = camera.getPickingRay(1024.0f, 768.0f, cursorX, cursorY);
+		Ray pickingRay = camera.getPickingRay(g_WindowWidth, g_WindowHeight, cursorX, cursorY);
 
 		// Check collision for each grid cell
 		for (int x = -6; x <= 6; x++) {
