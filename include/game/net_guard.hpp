@@ -160,8 +160,7 @@ class NetGuard {
             vec4 onboardingCurrentTarget = camera.target;
 
             // Posição final
-            vec4 defenseStartPos = vec4(4.0f, 20.0f, 0.0f, 1.0f);
-            // Alvo final (olhando para o centro do tabuleiro)
+            vec4 defenseStartPos = vec4(-12.0f, 15.0f, 0.0f, 1.0f);
             vec4 defenseStartTarget = vec4(0.0f, 0.0f, 0.0f, 1.0f);
 
             // Realizar ajustes 
@@ -180,6 +179,7 @@ class NetGuard {
                 onboardingCurrentTarget, p1_target, p2_target, defenseStartTarget,
                 transition_time
             );
+
 			break;
 		}
 		case NetGuardStage::defenseDeployment:
@@ -376,9 +376,7 @@ class NetGuard {
 	void defenseDeploymentUpdate() {
 		if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS && defenseUnits.size() >= 1)
 			currentStage = NetGuardStage::invasionPhase;
-
-		camera.position = vec4(4.0f, 20.0f, 0.0f, 1.0f);
-		camera.mode = CameraMode::TopDown;
+			
 		selectedPosition = vec2(INFINITY, INFINITY);
 
 		// Handle grid selection logic
