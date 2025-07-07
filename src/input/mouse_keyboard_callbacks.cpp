@@ -32,11 +32,11 @@ void CursorPosCallback(GLFWwindow *window, double xpos, double ypos) {
 // Veja http://www.glfw.org/docs/latest/input_guide.html#input_key
 void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mod) {
 
+	if ((key == GLFW_KEY_X) && (action == GLFW_PRESS) && (mod & GLFW_MOD_SHIFT)) {
+		g_DebugMode = !g_DebugMode;
+	}
 	if (action == GLFW_PRESS) {
 		switch (key) {
-		case GLFW_KEY_P:
-			g_NetGuard.nexStage();
-			break;
 		case GLFW_KEY_ESCAPE:
 			glfwSetWindowShouldClose(window, GL_TRUE);
 			break;

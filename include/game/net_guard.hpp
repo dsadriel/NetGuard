@@ -8,6 +8,7 @@
 #include "globals.hpp"
 #include "scene.hpp"
 #define GLFW_INCLUDE_NONE
+#include "utils/text_rendering.hpp"
 #include <external/GLFW/glfw3.h>
 #include <external/glm/vec4.hpp>
 #include <string>
@@ -53,6 +54,7 @@ class NetGuard {
 	GLint shading_mode_uniform;
 
 	bool isLeftMouseButtonPressed = false;
+	bool isPKeyPressed = false;
 
 	vec2 selectedPosition = vec2(-INFINITY, -INFINITY);
 
@@ -78,7 +80,8 @@ class NetGuard {
 		playerLives = 3;
 	}
 
-	void link(GLFWwindow *window, GLint model_uniform, GLint object_style_uniform, GLint object_color_uniform, GLint shading_mode_uniform) {
+	void link(GLFWwindow *window, GLint model_uniform, GLint object_style_uniform, GLint object_color_uniform,
+	          GLint shading_mode_uniform) {
 		this->window = window;
 		this->model_uniform = model_uniform;
 		this->object_style_uniform = object_style_uniform;
@@ -190,6 +193,13 @@ class NetGuard {
 			// Handle credit screen logic
 			break;
 		}
+
+		// If in debug mode, allow stage change with 'P' key (only trigger once per press)
+		bool currentPKeyState = glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS;
+		if (g_DebugMode && currentPKeyState && !isPKeyPressed) {
+			nexStage();
+		}
+		isPKeyPressed = currentPKeyState;
 	}
 
 	// MARK: Draw
@@ -205,7 +215,7 @@ class NetGuard {
 
 		switch (currentStage) {
 		case NetGuardStage::onboarding:
-			// Draw onboarding screen
+			drawOnboardingScreen();
 			break;
 		case NetGuardStage::defenseDeployment:
 			drawDefenseDeploymentScreen();
@@ -279,6 +289,9 @@ class NetGuard {
 
 	// MARK: Onboarding
 	void onboardingUpdate(float deltaTime, int &onboardingUpdateStage) {
+		if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS)
+			currentStage = NetGuardStage::defenseDeployment;
+
 		if (onboardingUpdateStage == 0) {
 			camera.target = vec4(0.0f, 0.0f, 0.0f, 1.0f);
 			camera.position = vec4(20.0f, 30.0f, 20.0f, 1.0f);
@@ -290,8 +303,17 @@ class NetGuard {
 		}
 	}
 
+	void drawOnboardingScreen() {
+		// Show the instructions for the onboarding stage
+		TextRendering_PrintStringC(window, "Press ENTER to start the defense deployment phase", -.5f, -.75f,
+		                           glm::vec3(1.0f, 1.0f, 1.0f), 1.2f);
+	}
+
 	// MARK: Defense Deployment
 	void defenseDeploymentUpdate() {
+		if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS && defenseUnits.size() >= 1)
+			currentStage = NetGuardStage::invasionPhase;
+
 		camera.position = vec4(4.0f, 20.0f, 0.0f, 1.0f);
 		camera.mode = CameraMode::TopDown;
 		selectedPosition = vec2(INFINITY, INFINITY);
@@ -307,10 +329,9 @@ class NetGuard {
 				float centerX = x + 0.5f;
 				float centerZ = z + 0.5f;
 
-				Plane planeAbs = Plane(vec4(centerX - 0.5f, 1.0f, centerZ - 0.5f, 1.0f),
-				                       vec4(centerX - 0.5f, 1.0f, centerZ + 0.5f, 1.0f),
-				                       vec4(centerX + 0.5f, 1.0f, centerZ + 0.5f, 1.0f),
-				                       vec4(centerX + 0.5f, 1.0f, centerZ - 0.5f, 1.0f));
+				Plane planeAbs = Plane(
+				    vec4(centerX - 0.5f, 1.0f, centerZ - 0.5f, 1.0f), vec4(centerX - 0.5f, 1.0f, centerZ + 0.5f, 1.0f),
+				    vec4(centerX + 0.5f, 1.0f, centerZ + 0.5f, 1.0f), vec4(centerX + 0.5f, 1.0f, centerZ - 0.5f, 1.0f));
 
 				if (checkCollision(pickingRay, planeAbs) && !isPositionInPath(x, z)) {
 					selectedPosition = vec2(centerX, centerZ);
@@ -384,7 +405,8 @@ class NetGuard {
 				if (availableDefenseUnits.back().sceneObject != nullptr) {
 					availableDefenseUnits.back().position =
 					    vec4(selectedPosition.x, gridHeight + 0.6f, selectedPosition.y, 1.0f);
-					availableDefenseUnits.back().draw(model_uniform, object_style_uniform, object_color_uniform, shading_mode_uniform);
+					availableDefenseUnits.back().draw(model_uniform, object_style_uniform, object_color_uniform,
+					                                  shading_mode_uniform);
 				}
 
 				// Decrease the count of available units, so it won't be drawn again
@@ -399,11 +421,28 @@ class NetGuard {
 						float posX = startX + i + 0.5f;
 						float posZ = startZ + j + 0.5f;
 						availableDU.position = vec4(posX, 0.6f, posZ, 1.0f);
-						availableDU.draw(model_uniform, object_style_uniform, object_color_uniform, shading_mode_uniform);
+						availableDU.draw(model_uniform, object_style_uniform, object_color_uniform,
+						                 shading_mode_uniform);
 					}
 				}
 			}
 		}
+
+		// Unit placement message
+		if (availableDefenseUnits.size() == 0) {
+			TextRendering_PrintStringC(window, "No available defense units to place", -0.95f, -0.90f,
+			                           glm::vec3(1.0f, 0.0f, 0.0f), 1.2f);
+		} else {
+			TextRendering_PrintStringC(window, "Available defense units: " + to_string(availableDefenseUnits.size()),
+			                           -0.95f, -0.85f, glm::vec3(1.0f, 1.0f, 1.0f), 1.2f);
+			TextRendering_PrintStringC(window, "Click to place a defense unit", -0.95f, -0.90f,
+			                           glm::vec3(1.0f, 1.0f, 1.0f), 1.2f);
+		}
+
+		// Start invasion phase message, if there are defense units placed
+		if (defenseUnits.size() > 0)
+			TextRendering_PrintStringC(window, "Press ENTER to start the invasion phase", -0.95f, -0.95f,
+			                           glm::vec3(1.0f, 1.0f, 1.0f), 1.2f);
 	}
 
 	// MARK: Invasion Phase
@@ -447,7 +486,8 @@ class NetGuard {
 			if (invasionUnit.sceneObject != nullptr) {
 				invasionUnit.sceneObject->position = invasionUnit.position;
 				invasionUnit.sceneObject->rotation = invasionUnit.rotation;
-				invasionUnit.sceneObject->drawObject(model_uniform, object_style_uniform, object_color_uniform, shading_mode_uniform);
+				invasionUnit.sceneObject->drawObject(model_uniform, object_style_uniform, object_color_uniform,
+				                                     shading_mode_uniform);
 			}
 		}
 	}

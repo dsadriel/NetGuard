@@ -45,6 +45,8 @@ double g_LastFrameTime = 0.0;
 double g_CurrentFrameTime = 0.0;
 float g_DeltaTime = 0.0f;
 
+bool g_DebugMode = false;
+
 // Variáveis que definem um programa de GPU (shaders). Veja função LoadShadersFromFiles().
 GLuint g_GpuProgramID = 0;
 GLint g_model_uniform;
@@ -110,7 +112,6 @@ int main() {
 	LoadShadersFromFiles();
 
 	TextRendering_Init();
-	
 
 	// Habilitamos o Z-buffer. Veja slides 104-116 do documento Aula_09_Projecoes.pdf.
 	glEnable(GL_DEPTH_TEST);
@@ -156,9 +157,8 @@ int main() {
 	BuildTrianglesAndAddToVirtualScene(&antivirusModel);
 
 	// Link all scene objects to NetGuard
-	g_NetGuard.linkSceneObjects(&g_VirtualScene["map"], &g_VirtualScene["board"], &g_VirtualScene["neocat"], 
-		&g_VirtualScene["plane1x1"], &g_VirtualScene["antivirus"]);
-
+	g_NetGuard.linkSceneObjects(&g_VirtualScene["map"], &g_VirtualScene["board"], &g_VirtualScene["neocat"],
+	                            &g_VirtualScene["plane1x1"], &g_VirtualScene["antivirus"]);
 
 	// ==================================================
 	// MARK: Carrega texturas
@@ -180,7 +180,6 @@ int main() {
 	g_VirtualScene["antivirus"].applyTexture("../../assets/textures/antivirus.png");
 	g_VirtualScene["antivirus"].scale = glm::vec3(0.6f, 0.6f, 0.6f);
 	g_VirtualScene["antivirus"].shading_mode = SHADING_GOURAUD;
-
 
 	g_VirtualScene["skybox"].applyTexture("../../assets/textures/skybox.png");
 	g_VirtualScene["skybox"].object_style = PLAIN_TEXTURED;
@@ -221,10 +220,11 @@ int main() {
 
 		// Desenha o skybox primeiro (sempre atrás de tudo)
 		glDepthMask(GL_FALSE); // Não escreve no depth buffer
-		g_VirtualScene["skybox"].position = glm::vec4(g_NetGuard.camera.position.x, g_NetGuard.camera.position.y, g_NetGuard.camera.position.z, 1.0f);
-		g_VirtualScene["skybox"].drawObject(g_model_uniform, g_object_style_uniform, g_object_color_uniform, g_shading_mode_uniform);
+		g_VirtualScene["skybox"].position =
+		    glm::vec4(g_NetGuard.camera.position.x, g_NetGuard.camera.position.y, g_NetGuard.camera.position.z, 1.0f);
+		g_VirtualScene["skybox"].drawObject(g_model_uniform, g_object_style_uniform, g_object_color_uniform,
+		                                    g_shading_mode_uniform);
 		glDepthMask(GL_TRUE); // Volta a escrever no depth buffer
-
 
 		g_NetGuard.update(g_DeltaTime);
 
@@ -232,10 +232,11 @@ int main() {
 
 		glBindVertexArray(0);
 
-		// Shows current FPS and stage
-		TextRendering_ShowFramesPerSecond(window);
-		std::string currentStage = g_NetGuard.getCurrentStageString();
-		TextRendering_PrintStringC(window, currentStage, -0.999f, 0.95f, glm::vec3(1.0f, 1.0f, 1.0f), 1.0f);
+		if (g_DebugMode) {
+			TextRendering_ShowFramesPerSecond(window);
+			std::string currentStage = g_NetGuard.getCurrentStageString();
+			TextRendering_PrintStringC(window, currentStage, -0.999f, 0.95f, glm::vec3(1.0f, 1.0f, 1.0f), 1.0f);
+		}
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
