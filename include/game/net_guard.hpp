@@ -55,6 +55,7 @@ class NetGuard {
 
 	bool isLeftMouseButtonPressed = false;
 	bool isPKeyPressed = false;
+	bool hasInvasionStarted = false;
 
 	vec2 selectedPosition = vec2(-INFINITY, -INFINITY);
 
@@ -154,34 +155,8 @@ class NetGuard {
 	void nextStage() {
 		switch (currentStage) {
 		case NetGuardStage::onboarding:
-		{
 			currentStage = NetGuardStage::defenseDeployment;
-			vec4 onboardingCurrentPos = camera.position;
-            vec4 onboardingCurrentTarget = camera.target;
-
-            // Posição final
-            vec4 defenseStartPos = vec4(-12.0f, 15.0f, 0.0f, 1.0f);
-            vec4 defenseStartTarget = vec4(0.0f, 0.0f, 0.0f, 1.0f);
-
-            // Realizar ajustes 
-            vec4 p1_pos = onboardingCurrentPos + vec4(-5.0f, 10.0f, -5.0f, 0.0f); 
-            vec4 p2_pos = defenseStartPos + vec4(0.0f, 5.0f, 0.0f, 0.0f);
-
-            // Pontos de controle para o alvo (para onde a câmera está olhando)
-            vec4 p1_target = onboardingCurrentTarget; 
-            vec4 p2_target = defenseStartTarget; 
-
-			// Duração da transição em SEGUNDOS
-            float transition_time = 3.0f; 
-
-            startCameraTransition(
-                onboardingCurrentPos, p1_pos, p2_pos, defenseStartPos,
-                onboardingCurrentTarget, p1_target, p2_target, defenseStartTarget,
-                transition_time
-            );
-
 			break;
-		}
 		case NetGuardStage::defenseDeployment:
 			currentStage = NetGuardStage::invasionPhase;
 			break;
@@ -238,7 +213,6 @@ class NetGuard {
 				break;
 			case NetGuardStage::invasionPhase:
 				// Handle invasion phase logic
-				camera.mode = CameraMode::Free;
 				updateInvasionPhase(deltaTime);
 				handleMovement(deltaTime);
 				break;
@@ -352,8 +326,33 @@ class NetGuard {
 
 	// MARK: Onboarding
 	void onboardingUpdate(float deltaTime, int &onboardingUpdateStage) {
-		if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS)
+		if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS) {
 			currentStage = NetGuardStage::defenseDeployment;
+			vec4 onboardingCurrentPos = camera.position;
+            vec4 onboardingCurrentTarget = camera.target;
+
+            // Posição final
+            vec4 defenseStartPos = vec4(-12.0f, 15.0f, 0.0f, 1.0f);
+            vec4 defenseStartTarget = vec4(0.0f, 0.0f, 0.0f, 1.0f);
+
+            // Realizar ajustes 
+            vec4 p1_pos = onboardingCurrentPos + vec4(-5.0f, 10.0f, -5.0f, 0.0f); 
+            vec4 p2_pos = defenseStartPos + vec4(0.0f, 5.0f, 0.0f, 0.0f);
+
+            // Pontos de controle para o alvo (para onde a câmera está olhando)
+            vec4 p1_target = onboardingCurrentTarget; 
+            vec4 p2_target = defenseStartTarget; 
+
+			// Duração da transição em SEGUNDOS
+            float transition_time = 3.0f; 
+
+            startCameraTransition(
+                onboardingCurrentPos, p1_pos, p2_pos, defenseStartPos,
+                onboardingCurrentTarget, p1_target, p2_target, defenseStartTarget,
+                transition_time
+            );
+			
+		}
 
 		if (onboardingUpdateStage == 0) {
 			camera.target = vec4(0.0f, 0.0f, 0.0f, 1.0f);
@@ -374,8 +373,10 @@ class NetGuard {
 
 	// MARK: Defense Deployment
 	void defenseDeploymentUpdate() {
-		if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS && defenseUnits.size() >= 1)
+		if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS && defenseUnits.size() >= 1) {
+			hasInvasionStarted = false;
 			currentStage = NetGuardStage::invasionPhase;
+		}
 			
 		selectedPosition = vec2(INFINITY, INFINITY);
 
@@ -536,10 +537,24 @@ class NetGuard {
 	// MARK: Invasion Phase
 	void updateInvasionPhase(float deltaTime) {
 		static int currentTargetIndex = 0;
+		if (!hasInvasionStarted) {
+			// Set the camera position and orientation for the invasion phase
+			camera.position = vec4(6.0f, 6.0f, -10.0f, 1.0f);
+			camera.changePitch(-0.1f);
+			camera.changeYaw(3*M_PI/4);
+			camera.mode = CameraMode::Free;
+			hasInvasionStarted = true;
+
+			// Clear the invasion units at the start of the invasion phase
+			invasionUnits.clear();
+			currentTargetIndex = 0;
+		}
+
 		vector<vec2> targets = getPathPoints();
 
 		if (invasionUnits.empty()) {
-			GameUnit invasionUnit(vec4(5.0f, 2.0f, -6.0f, 1.0f), vec4(0.0f, 0.0f, 0.0f, 1.0f));
+			vec2 firstPosition = getPathPoints().front();
+			GameUnit invasionUnit(vec4(firstPosition.x, gridHeight + 0.53f, firstPosition.y, 1.0f), vec4(0.0f, 0.0f, 0.0f, 1.0f));
 			invasionUnit.sceneObject = cat;
 			invasionUnit.sceneObject->scale = vec4(0.7f, 0.7f, 0.7f, 1.0f);
 			invasionUnits.push_back(invasionUnit);

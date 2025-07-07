@@ -37,9 +37,6 @@ void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mod)
 	}
 	if (action == GLFW_PRESS) {
 		switch (key) {
-		case GLFW_KEY_ENTER:
-			g_NetGuard.nextStage();
-			break;
 		case GLFW_KEY_ESCAPE:
 			glfwSetWindowShouldClose(window, GL_TRUE);
 			break;
