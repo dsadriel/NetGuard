@@ -30,19 +30,9 @@ Durante o desenvolvimento do NetGuard, tivemos a oportunidade de aplicar diverso
 - **Transformações geométricas**: Implementamos operações de translação, rotação e escala, compostas diretamente nos métodos de desenho dos objetos para garantir o posicionamento correto na cena.
 - **Malhas poligonais**: Utilizamos o `tinyobjloader` para carregar arquivos `.obj`, com suporte a vértices, normais e coordenadas de textura. Os modelos representam inimigos, torres, cenário e outros elementos do jogo.
 - **Pipeline gráfico**: Utilizamos pipeline programável com shaders escritos em GLSL, adaptados a partir dos laboratórios da disciplina. Todo o sistema de iluminação e texturização é controlado por esses shaders personalizados.
-- **Shaders e modelos de iluminação**: 
-    - Cada objeto possui um modelo de interpolação (Phong ou Gouraud), definido individualmente.
-    - Aplicamos o modelo de iluminação Blinn-Phong, com suporte a componentes ambiente, difusa e especular.
-    - Apenas uma fonte de luz é utilizada na cena, com configuração direcional.
-    - Mapeamento de texturas aplicado com coordenadas carregadas diretamente dos arquivos `.obj`.
-- **Animações**:
-    - **Curva Bézier cúbica**: utilizada para controlar a movimentação dos inimigos ao longo de caminhos suaves e definidos.
-    - **Movimentação circular da câmera**: animações orbitais em torno da base para apresentar o ambiente ao jogador.
-    - **Movimentação linear em direção a um ponto-alvo**: empregada tanto para inimigos quanto para transições de câmera.
-- **Câmeras**: Implementamos três modos distintos:
-    - **Câmera livre**, controlada diretamente pelo jogador.
-    - **Câmera look-at**, com movimento animado programado.
-    - **Câmera top-down**, com visão fixa voltada à estratégia de posicionamento.
+- **Shaders e modelos de iluminação**: Os shaders e modelos de iluminação foram implementados com flexibilidade para cada objeto, que possui seu próprio modelo de interpolação, seja Phong ou Gouraud. Adotamos o modelo de iluminação Blinn-Phong, contemplando os componentes ambiente, difusa e especular. A cena conta com uma única fonte de luz configurada de forma direcional. O mapeamento de texturas utiliza coordenadas carregadas diretamente dos arquivos .obj.
+- **Animações**: A câmera possui animações orbitais que promovem um movimento circular em torno da base, permitindo uma apresentação dinâmica do ambiente para o jogador. Utilizamos curvas Bézier cúbicas especificamente para controlar a transição suave entre a câmera look-at e a câmera top-down Além disso, implementamos movimentação linear em direção a pontos-alvo, utilizada tanto para a movimentação dos inimigos.
+- **Câmeras**: Quanto às câmeras, foram desenvolvidos três modos distintos. A câmera livre permite controle direto pelo jogador. A câmera do tipo look-at apresenta movimentos programados, oferecendo uma visão dirigida. Por fim, a câmera top-down proporciona uma visão fixa, ideal para estratégias de posicionamento no jogo.
 - **Testes de colisão**: No arquivo `collisions.hpp`, implementamos várias técnicas de detecção, incluindo interseção entre raios e planos, raios e triângulos, colisões entre caixas alinhadas aos eixos (AABB), esferas com caixas e entre esferas. Essas funções foram desenvolvidas para oferecer flexibilidade no projeto, mas no momento nem todas estão efetivamente utilizadas na lógica do jogo, servindo como base para expansões e experimentos futuros.
 
 
