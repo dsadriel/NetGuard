@@ -13,6 +13,7 @@
 #include <external/glm/vec4.hpp>
 #include <string>
 #include <vector>
+#define M_PI 3.14159265358979323846
 
 using namespace glm;
 using namespace std;
@@ -538,6 +539,7 @@ class NetGuard {
 	void updateInvasionPhase(float deltaTime) {
 		static int currentTargetIndex = 0;
 		if (!hasInvasionStarted) {
+
 			// Set the camera position and orientation for the invasion phase
 			camera.position = vec4(6.0f, 6.0f, -10.0f, 1.0f);
 			camera.changePitch(-0.1f);
