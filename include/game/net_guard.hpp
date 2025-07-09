@@ -626,6 +626,11 @@ class NetGuard {
 				invasionUnit.sceneObject->drawObject(model_uniform, object_style_uniform, object_color_uniform, shading_mode_uniform);
 			}
 		}
+
+		// Draws a message that says that the invasion phase isn't yet implemented
+		TextRendering_PrintStringC(window, "Invasion phase is not yet implemented", -0.95f, -0.90f,  glm::vec3(1.0f, 0.5f, 0.5f), 1.2f);
+		TextRendering_PrintStringC(window, "Press ESC to close the game", -0.95f, -0.95f,  glm::vec3(1.0f, 1.0f, 1.0f), 1.2f);
+							
 	}
 };
 
