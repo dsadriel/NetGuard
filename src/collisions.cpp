@@ -91,6 +91,7 @@ bool checkCollision(Sphere sphere, BoundingBox box) {
 	closestPoint.z = fmax(boxMin.z, fmin(sphere.center.z, boxMax.z));
 
 	vec4 distanceVec = sphere.center - closestPoint;
+	distanceVec.w = 0.0f;
 	float distanceSquared = dotproduct(distanceVec, distanceVec);
 
 	return distanceSquared <= (sphere.radius * sphere.radius);

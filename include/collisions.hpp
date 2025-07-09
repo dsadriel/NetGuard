@@ -50,10 +50,8 @@ struct BoundingBox {
 
     BoundingBox() : boxSize(), origin() {}
 
-    BoundingBox(const vec4& minPoint, const vec4& maxPoint) {
-        origin = (minPoint + maxPoint) * 0.5f; // Center point
-        boxSize = maxPoint - minPoint;         // Size dimensions
-    }
+    BoundingBox(const vec4& newOrigin, const vec4& newBoxSize) 
+        : origin(newOrigin), boxSize(newBoxSize) {}
 
     vec4 getAbsoluteMin() const {
         return origin - boxSize * 0.5f;

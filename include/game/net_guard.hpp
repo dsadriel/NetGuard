@@ -13,6 +13,7 @@
 #include <external/glm/vec4.hpp>
 #include <string>
 #include <vector>
+#define M_PI 3.14159265358979323846
 
 using namespace glm;
 using namespace std;
@@ -82,6 +83,10 @@ class NetGuard {
     float transition_timer = 0.0f;
     float transition_duration = 3.0f;
     bool in_transition = false;
+	BoundingBox mapPlaneBB = BoundingBox(vec4(0.0f, 12.3f, 0.0f, 1.0f), vec4(60.0f, 21.0f, 60.0f, 1.0f));
+	vec4 lastCameraPos = vec4(0.0f, 0.0f, 0.0f, 1.0f);
+	vec4 lastUnitPos = vec4(0.0f, 0.0f, 0.0f, 1.0f);
+
 
   public:
 	Camera camera = Camera(vec4(2.0f, 2.0f, 2.0f, 1.0f), -2.4f, -0.5f);
@@ -538,6 +543,7 @@ class NetGuard {
 	void updateInvasionPhase(float deltaTime) {
 		static int currentTargetIndex = 0;
 		if (!hasInvasionStarted) {
+
 			// Set the camera position and orientation for the invasion phase
 			camera.position = vec4(6.0f, 6.0f, -10.0f, 1.0f);
 			camera.changePitch(-0.1f);
@@ -551,6 +557,19 @@ class NetGuard {
 		}
 
 		vector<vec2> targets = getPathPoints();
+
+		camera.boundingSphere.center = camera.position;
+		camera.boundingSphere.radius = 0.5f;
+
+		bool hadMapAndCameraCollision = checkCollision(camera.boundingSphere, mapPlaneBB);
+		if(!hadMapAndCameraCollision)
+		{
+			camera.position = lastCameraPos;
+		}
+		else
+		{
+			lastCameraPos = camera.position;
+		}
 
 		if (invasionUnits.empty()) {
 			vec2 firstPosition = getPathPoints().front();
@@ -579,8 +598,23 @@ class NetGuard {
 					invasionUnit.position = vec4(target.x, invasionUnit.position.y, target.y, 1.0f);
 					currentTargetIndex = (currentTargetIndex + 1) % targets.size();
 				}
+				
+				invasionUnit.boundingSphere.center = invasionUnit.position;
+				invasionUnit.boundingSphere.radius = 0.5f;				
 			}
+			bool hadUnitAndCameraCollison = checkCollision(camera.boundingSphere, invasionUnit.boundingSphere);
+				if(hadUnitAndCameraCollison)
+				{
+					camera.position = lastCameraPos;
+					invasionUnit.position = lastUnitPos;
+				}
+				else 
+				{
+					lastCameraPos = camera.position;
+					lastUnitPos = invasionUnit.position;
+				}
 		}
+		
 	}
 
 	void drawInvasionPhase() {
@@ -589,8 +623,7 @@ class NetGuard {
 			if (invasionUnit.sceneObject != nullptr) {
 				invasionUnit.sceneObject->position = invasionUnit.position;
 				invasionUnit.sceneObject->rotation = invasionUnit.rotation;
-				invasionUnit.sceneObject->drawObject(model_uniform, object_style_uniform, object_color_uniform,
-				                                     shading_mode_uniform);
+				invasionUnit.sceneObject->drawObject(model_uniform, object_style_uniform, object_color_uniform, shading_mode_uniform);
 			}
 		}
 	}

@@ -24,6 +24,7 @@ class Camera {
 	vec4 up_vector;
 	vec4 target = vec4(0.0f, 0.0f, 0.0f, 1.0f);
 	CameraMode mode = CameraMode::Free;
+	Sphere boundingSphere;
 
 	float nearplane = -0.1f;
 	float farplane = -100.0f;
