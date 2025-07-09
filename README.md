@@ -15,11 +15,23 @@ Ao desenvolver o NetGuard, buscamos aplicar conceitos fundamentais de computaç�
 
 ## Demonstração
 
-> TODO: Imagens do jogo em ação, mostrando a base, a torre e os inimigos.
+![onboarding](.github/images/onboarding_phase.png)
+![defese_depolyment](.github/images/defense_deployment0.png)
+![invasion_phase](.github/images/invasion_phase.png)
 
 ## Manual de Utilização
 
-> TODO
+O jogo é controlado por meio de um teclado e mouse, seguindo as seguintes instruções:
+
+- **Fase de embarque**: Esta fase é a apresentação do jogo, para iniciar o jogo basta pressionar a tecla `Enter`
+
+- **Fase de coloção de defesas**: Nesta fase, o jogador pode posicionar torres de defesa clicando com o `botão esquerdo do mouse` sobre as posições disponíveis no mapa. As torres podem ser colocadas em locais estratégicos para maximizar a defesa contra os inimigos.
+
+- **Fase de invasão**: Após posicionar as torres, o jogador deve pressionar a tecla `Enter` para iniciar a fase de invasão. Nesta fase, os inimigos começarão a atacar a base, e o jogador deve observar como as torres se comportam e defendem a base. Para movimentar a câmera, utilize as seguintes teclas:
+
+  - `W` e `S`: movimentam a câmera para frente e para trás, respectivamente.
+  - `A` e `D`: movimentam a câmera para os lados.
+  - `Q` e `E`: movimentam a câmera para cima e para baixo.
 
 
 ## Conceitos de Computação Gráfica Aplicados
