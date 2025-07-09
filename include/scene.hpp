@@ -11,6 +11,7 @@
 
 #include "matrices.hpp"
 #include "utils/texture_utils.hpp"
+#include "collisions.hpp"
 
 #define PLAIN_COLOR 0x00
 #define TEXTURED 0x10
