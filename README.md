@@ -63,6 +63,7 @@ O trabalho foi desenvolvido em colaboração, com as seguintes contribuições p
     - Criação do sistema de detecção de colisões e picking.
     - Aprimoramento da abstração de objetos de cena, incluindo a texturização e estilos de objetos.
     - Abastrção de diversas classes, incluindo métodos de desenho e atualização de objetos.
+    - Animação baseada em tempo, para movimentação da camera e inimigos.
 - **Nicolas Chin Lee ([@nicolasclee](https://github.com/nicolasclee))**:
     > TODO
 
