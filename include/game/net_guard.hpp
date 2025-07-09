@@ -83,6 +83,9 @@ class NetGuard {
     float transition_timer = 0.0f;
     float transition_duration = 3.0f;
     bool in_transition = false;
+	BoundingBox mapPlaneBB = BoundingBox(vec4(0.0f, 13.2f, 0.0f, 1.0f), vec4(60.0f, 20.0f, 60.0f, 1.0f));
+	vec4 lastCameraPos = vec4(0.0f, 0.0f, 0.0f, 1.0f);
+
 
   public:
 	Camera camera = Camera(vec4(2.0f, 2.0f, 2.0f, 1.0f), -2.4f, -0.5f);
@@ -582,6 +585,19 @@ class NetGuard {
 					currentTargetIndex = (currentTargetIndex + 1) % targets.size();
 				}
 			}
+		}
+
+		camera.boundingSphere.center = camera.position;
+		camera.boundingSphere.radius = 2.0f;
+
+		bool hadMapAndCameraCollision = checkCollision(camera.boundingSphere, mapPlaneBB);
+		if(!hadMapAndCameraCollision)
+		{
+			camera.position = lastCameraPos;
+		}
+		else
+		{
+			lastCameraPos = camera.position;
 		}
 	}
 
