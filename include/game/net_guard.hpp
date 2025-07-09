@@ -292,9 +292,9 @@ class NetGuard {
 			camera.move(CameraMovement::Left, velocity);
 		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 			camera.move(CameraMovement::Right, velocity);
-		if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
+		if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
 			camera.move(CameraMovement::Up, velocity);
-		if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
+		if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
 			camera.move(CameraMovement::Down, velocity);
 	}
 
