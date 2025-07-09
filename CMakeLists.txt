@@ -22,14 +22,15 @@ set(CMAKE_CXX_STANDARD          11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS        OFF)
 
-if(WIN32)
-  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG   "${PROJECT_SOURCE_DIR}/bin/Debug")
-  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE "${PROJECT_SOURCE_DIR}/bin/Release")
-elseif(UNIX AND NOT APPLE)
-  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin/Linux")
-elseif(APPLE)
-  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin/macOS")
-endif()
+# if(WIN32)
+#   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG   "${PROJECT_SOURCE_DIR}/bin/Debug")
+#   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE "${PROJECT_SOURCE_DIR}/bin/Release")
+# elseif(UNIX AND NOT APPLE)
+#   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin/Linux")
+# elseif(APPLE)
+#   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin/macOS")
+# endif()
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}")
 
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Debug)
@@ -44,7 +45,7 @@ message(STATUS
                for type in {Release, Debug, RelWithDebInfo}.
 ")
 
-set(EXECUTABLE_NAME main)
+set(EXECUTABLE_NAME NetGuard)
 
 # Verifies if all source files are present in the current directory.
 # If not, it warns about a misconfigured CMakeLists.
@@ -116,8 +117,8 @@ elseif(APPLE)
 
   # Add custom target for 'run'
   add_custom_target(run
-      COMMAND ${CMAKE_COMMAND} -E chdir ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} ./main
-      DEPENDS main
+      COMMAND ${CMAKE_COMMAND} -E chdir ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} ./NetGuard
+      DEPENDS NetGuard
       USES_TERMINAL
   )
   
@@ -136,8 +137,8 @@ elseif(UNIX)
 
   # Add custom target for 'run'
   add_custom_target(run
-      COMMAND ${CMAKE_COMMAND} -E chdir ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} ./main
-      DEPENDS main
+      COMMAND ${CMAKE_COMMAND} -E chdir ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} ./NetGuard
+      DEPENDS NetGuard
       USES_TERMINAL
   )
 

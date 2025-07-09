@@ -2,8 +2,8 @@
 
 void LoadShadersFromFiles()
 {
-    GLuint vertex_shader_id = LoadShader_Vertex("../../src/core/shader_vertex.glsl");
-    GLuint fragment_shader_id = LoadShader_Fragment("../../src/core/shader_fragment.glsl");
+    GLuint vertex_shader_id = LoadShader_Vertex("./src/core/shader_vertex.glsl");
+    GLuint fragment_shader_id = LoadShader_Fragment("./src/core/shader_fragment.glsl");
 
     // Deletamos o programa de GPU anterior, caso ele exista.
     if ( g_GpuProgramID != 0 )

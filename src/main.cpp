@@ -132,28 +132,28 @@ int main() {
 	// MARK: Carrega os objetos
 	// ==================================================
 
-	ObjModel mapModel("../../assets/models/map.obj");
+	ObjModel mapModel("./assets/models/map.obj");
 	ComputeNormals(&mapModel);
 	BuildTrianglesAndAddToVirtualScene(&mapModel);
 
-	ObjModel boardModel("../../assets/models/board.obj");
+	ObjModel boardModel("./assets/models/board.obj");
 	ComputeNormals(&boardModel);
 	BuildTrianglesAndAddToVirtualScene(&boardModel);
 
-	ObjModel neoCatModel("../../assets/models/neocat/neocat.obj");
+	ObjModel neoCatModel("./assets/models/neocat/neocat.obj");
 	ComputeNormals(&neoCatModel);
 	BuildTrianglesAndAddToVirtualScene(&neoCatModel);
 
-	ObjModel plane1x1Model("../../assets/models/plane1x1.obj");
+	ObjModel plane1x1Model("./assets/models/plane1x1.obj");
 	ComputeNormals(&plane1x1Model);
 	BuildTrianglesAndAddToVirtualScene(&plane1x1Model);
 	g_VirtualScene["plane1x1"].shading_mode = SHADING_GOURAUD;
 
-	ObjModel skyBoxModel("../../assets/models/skybox.obj");
+	ObjModel skyBoxModel("./assets/models/skybox.obj");
 	ComputeNormals(&skyBoxModel);
 	BuildTrianglesAndAddToVirtualScene(&skyBoxModel);
 
-	ObjModel antivirusModel("../../assets/models/antivirus/antivirus.obj");
+	ObjModel antivirusModel("./assets/models/antivirus/antivirus.obj");
 	ComputeNormals(&antivirusModel);
 	BuildTrianglesAndAddToVirtualScene(&antivirusModel);
 
@@ -166,23 +166,23 @@ int main() {
 	// ==================================================
 
 	// Carrega a textura do neocat
-	g_VirtualScene["neocat"].applyTexture("../../assets/textures/neocat.png");
+	g_VirtualScene["neocat"].applyTexture("./assets/textures/neocat.png");
 
-	g_VirtualScene["map"].applyTexture("../../assets/textures/grid.png");
+	g_VirtualScene["map"].applyTexture("./assets/textures/grid.png");
 	g_VirtualScene["map"].object_style = FLAT_TEXTURED;
 	g_VirtualScene["map"].shading_mode = SHADING_PHONG;
 
-	g_VirtualScene["board"].applyTexture("../../assets/textures/grid.png");
+	g_VirtualScene["board"].applyTexture("./assets/textures/grid.png");
 	g_VirtualScene["board"].object_style = FLAT_TEXTURED;
 	g_VirtualScene["board"].scale = glm::vec3(1.0f, 1.0f, 1.0f);
 	g_VirtualScene["board"].position = glm::vec4(0.0f, 0.01f, 0.0f, 1.0f);
 	g_VirtualScene["board"].shading_mode = SHADING_PHONG;
 
-	g_VirtualScene["antivirus"].applyTexture("../../assets/textures/antivirus.png");
+	g_VirtualScene["antivirus"].applyTexture("./assets/textures/antivirus.png");
 	g_VirtualScene["antivirus"].scale = glm::vec3(0.6f, 0.6f, 0.6f);
 	g_VirtualScene["antivirus"].shading_mode = SHADING_PHONG;
 
-	g_VirtualScene["skybox"].applyTexture("../../assets/textures/skybox.png");
+	g_VirtualScene["skybox"].applyTexture("./assets/textures/skybox.png");
 	g_VirtualScene["skybox"].object_style = PLAIN_TEXTURED;
 
 	// Configura os uniforms das texturas

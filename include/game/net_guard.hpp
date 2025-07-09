@@ -18,6 +18,7 @@
 #define M_PI 3.14159265358979323846
 #endif
 
+
 using namespace glm;
 using namespace std;
 
@@ -295,9 +296,9 @@ class NetGuard {
 			camera.move(CameraMovement::Left, velocity);
 		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 			camera.move(CameraMovement::Right, velocity);
-		if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
+		if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
 			camera.move(CameraMovement::Up, velocity);
-		if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
+		if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
 			camera.move(CameraMovement::Down, velocity);
 	}
 
@@ -428,6 +429,7 @@ class NetGuard {
 				GameUnit newUnit = availableDefenseUnits.back();
 				availableDefenseUnits.pop_back();
 				newUnit.position = vec4(selectedPosition.x, gridHeight + .6f, selectedPosition.y, 1.0f);
+				newUnit.boundingBox.origin = vec4(selectedPosition.x, gridHeight + 0.6f, selectedPosition.y, 1.0f);
 				defenseUnits.push_back(newUnit);
 			} else {
 				printf("No available defense units to place.\n");
@@ -565,12 +567,26 @@ class NetGuard {
 		camera.boundingSphere.radius = 0.5f;
 
 		bool hadMapAndCameraCollision = checkCollision(camera.boundingSphere, mapPlaneBB);
-		if(!hadMapAndCameraCollision)
-		{
+		bool hasUnitCollision = false;
+
+		for (const auto &defenseUnit : defenseUnits) {
+			if(defenseUnit.sceneObject != nullptr && checkCollision(camera.boundingSphere, defenseUnit.boundingBox)){
+				hasUnitCollision = true;
+				break;
+			}			
+		}
+
+		for (const auto &invasionUnit : invasionUnits) {
+			if(invasionUnit.sceneObject != nullptr && checkCollision(camera.boundingSphere, invasionUnit.boundingBox)){
+				hasUnitCollision = true;
+				break;
+			}			
+		}
+
+		if(!hadMapAndCameraCollision || hasUnitCollision){
 			camera.position = lastCameraPos;
 		}
-		else
-		{
+		else{
 			lastCameraPos = camera.position;
 		}
 
@@ -602,18 +618,15 @@ class NetGuard {
 					currentTargetIndex = (currentTargetIndex + 1) % targets.size();
 				}
 				
-				invasionUnit.boundingSphere.center = invasionUnit.position;
-				invasionUnit.boundingSphere.radius = 0.5f;				
+				invasionUnit.boundingBox.origin = invasionUnit.position;
 			}
-			bool hadUnitAndCameraCollison = checkCollision(camera.boundingSphere, invasionUnit.boundingSphere);
+			bool hadUnitAndCameraCollison = checkCollision(camera.boundingSphere, invasionUnit.boundingBox);
 				if(hadUnitAndCameraCollison)
 				{
-					camera.position = lastCameraPos;
 					invasionUnit.position = lastUnitPos;
 				}
 				else 
 				{
-					lastCameraPos = camera.position;
 					lastUnitPos = invasionUnit.position;
 				}
 		}
@@ -629,6 +642,11 @@ class NetGuard {
 				invasionUnit.sceneObject->drawObject(model_uniform, object_style_uniform, object_color_uniform, shading_mode_uniform);
 			}
 		}
+
+		// Draws a message that says that the invasion phase isn't yet implemented
+		TextRendering_PrintStringC(window, "Invasion phase is not yet implemented", -0.95f, -0.90f,  glm::vec3(1.0f, 0.5f, 0.5f), 1.2f);
+		TextRendering_PrintStringC(window, "Press ESC to close the game", -0.95f, -0.95f,  glm::vec3(1.0f, 1.0f, 1.0f), 1.2f);
+							
 	}
 };
 
