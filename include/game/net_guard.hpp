@@ -13,7 +13,11 @@
 #include <external/glm/vec4.hpp>
 #include <string>
 #include <vector>
-// #define M_PI 3.14159265358979323846
+
+#if !defined(__APPLE__)
+#define M_PI 3.14159265358979323846
+#endif
+
 
 using namespace glm;
 using namespace std;
