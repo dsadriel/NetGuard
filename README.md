@@ -46,7 +46,11 @@ O desenvolvimento ocorreu de forma incremental, com etapas definidas conforme su
 O trabalho foi desenvolvido em colaboração, com as seguintes contribuições principais:
 
 - **Adriel de Souza ([@dsadriel](https://github.com/dsadriel))**: 
-    > TODO
+    - Implementação da lógica de jogo, incluindo maquina de estados para gerenciar as fases do jogo, movimentação dos inimigos e posicionamento das torres.
+    - Desenvolvimento da câmera, incluindo os modos de câmera look-at e top-down.
+    - Criação do sistema de detecção de colisões e picking.
+    - Aprimoramento da abstração de objetos de cena, incluindo a texturização e estilos de objetos.
+    - Abastrção de diversas classes, incluindo métodos de desenho e atualização de objetos.
 - **Nicolas Chin Lee ([@nicolasclee](https://github.com/nicolasclee))**:
     > TODO
 
