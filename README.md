@@ -65,7 +65,11 @@ O trabalho foi desenvolvido em colaboração, com as seguintes contribuições p
     - Abastrção de diversas classes, incluindo métodos de desenho e atualização de objetos.
     - Animação baseada em tempo, para movimentação da camera e inimigos.
 - **Nicolas Chin Lee ([@nicolasclee](https://github.com/nicolasclee))**:
-    > TODO
+  - Implementação de modelos de iluminação Difusa (Lambert) e Blinn-Phong para os diferentes objetos do projeto.
+  - Implementação modelos de Interpolação de Phong e Gouraud (shading mode) aplicados no sombreamento de unidades e do mapa.
+  - Adição das curvas de Bézier para transição da câmera da fase onboarding para fase defenseDeployment.
+  - Inclusão de colisão entre mapa e câmera utilizando esferas e bounding boxes.
+  - Refatoração de código base para modularidade e qualidade de vida do projeto e desenvolvimento.
 
 
 ### Análise do Uso de Ferramentas de IA
