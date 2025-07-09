@@ -14,6 +14,7 @@ class GameUnit {
 		vec4 rotation; // Rotation of the unit
 		int targetIndex;
 		vec2 target;
+		Sphere boundingSphere;
 
 	GameUnit() : position(vec4(0.0f)), rotation(vec4(0.0f, 0.0f, 0.0f, 0.0f)), sceneObject(nullptr) {}
 	GameUnit(vec4 pos, SceneObject* obj) : position(pos), rotation(vec4(0.0f, 0.0f, 0.0f, 0.0f)), sceneObject(obj) {}
