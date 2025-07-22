@@ -1,6 +1,8 @@
-# NetGuard: In a world of chaos, be the firewall
+# NetGuard: In a World of Chaos, Be the Firewall
 
 ![Header](.github/header.png)
+
+[![English](https://img.shields.io/badge/README-English-blue?logo=github)](README.en.md)
 
 ## Descrição
 
